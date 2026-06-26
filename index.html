@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 追星學西語</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #0d0b1a;
+  --surface: #161229;
+  --surface2: #1e1a35;
+  --surface3: #252040;
+  --accent: #7c6af5;
+  --accent2: #a78bfa;
+  --accent3: #c4b5fd;
+  --gold: #f5c67c;
+  --green: #4ade80;
+  --red: #f87171;
+  --text: #e8e4ff;
+  --text2: #a89fd4;
+  --text3: #6b64a0;
+  --border: #2a2350;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 90px;
+  overflow-x: hidden;
+}
+
+/* ─── SONG PICKER ─── */
+.song-picker {
+  padding: 20px 16px 0;
+  overflow-x: auto;
+  display: flex;
+  gap: 10px;
+  scrollbar-width: none;
+}
+.song-picker::-webkit-scrollbar { display: none; }
+
+.song-chip {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 130px;
+}
+.song-chip.active {
+  border-color: var(--accent);
+  background: rgba(124,106,245,0.12);
+  box-shadow: 0 0 16px rgba(124,106,245,0.2);
+}
+.song-chip-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+.song-chip-artist {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.song-chip-done {
+  font-size: 10px;
+  color: var(--green);
+  margin-top: 3px;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: linear-gradient(180deg, #1a1530 0%, var(--bg) 100%);
+  padding: 24px 20px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.header-artist { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 4px; font-weight: 600; }
+.header-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.header-sub { font-size: 11px; color: var(--text3); margin-bottom: 12px; }
+
+/* ─── PROGRESS ─── */
+.progress-section { padding: 0 20px; margin-bottom: 4px; }
+.progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 6px; }
+.progress-bar-bg { background: var(--surface2); border-radius: 99px; height: 7px; overflow: hidden; }
+.progress-bar-fill { background: linear-gradient(90deg, var(--accent), var(--accent2)); height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 0 10px rgba(124,106,245,0.5); }
+
+/* ─── STATS ─── */
+.stats-row { display: flex; gap: 8px; padding: 10px 20px 0; overflow-x: auto; scrollbar-width: none; }
+.stats-row::-webkit-scrollbar { display: none; }
+.stat-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 11px; font-size: 11px; white-space: nowrap; display: flex; align-items: center; gap: 4px; color: var(--text2); }
+.stat-chip.hi { border-color: var(--accent); color: var(--accent3); background: rgba(124,106,245,0.1); }
+.stat-chip .num { font-weight: 700; color: var(--gold); font-size: 13px; }
+.streak-badge { background: linear-gradient(135deg,#f5c67c22,#f5c67c11); border: 1px solid #f5c67c44; border-radius: 20px; padding: 5px 11px; font-size: 11px; white-space: nowrap; display: none; align-items: center; gap: 4px; color: var(--gold); font-weight: 600; }
+
+/* ─── CONTENT ─── */
+.content { padding: 14px 16px 0; }
+
+/* ─── MODE TABS ─── */
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.mode-tab { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text3); font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+.mode-tab.active { background: var(--accent); border-color: var(--accent); color: white; box-shadow: 0 0 16px rgba(124,106,245,0.35); }
+
+/* ─── SENTENCE CARD ─── */
+.sentence-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 10px; position: relative; transition: all 0.3s; }
+.sentence-card.correct { border-color: var(--green); background: rgba(74,222,128,0.05); box-shadow: 0 0 16px rgba(74,222,128,0.1); }
+.sentence-card.wrong { border-color: var(--red); animation: shake 0.4s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+
+.sentence-index { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-weight: 600; }
+.sentence-es { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
+.sentence-vocab { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.vocab-tag { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.2); color: var(--accent3); font-size: 10px; padding: 2px 8px; border-radius: 99px; cursor: pointer; transition: all 0.2s; }
+.vocab-tag:hover { background: rgba(167,139,250,0.25); }
+
+.ts-btn { display: inline-flex; align-items: center; gap: 3px; background: rgba(124,106,245,0.1); border: 1px solid rgba(124,106,245,0.2); border-radius: 6px; color: var(--accent3); font-size: 10px; font-weight: 600; padding: 3px 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; margin-bottom: 10px; }
+.ts-btn:hover { background: rgba(124,106,245,0.25); border-color: var(--accent); }
+
+.translate-label { font-size: 10px; color: var(--text3); margin-bottom: 5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.translate-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s; resize: none; }
+.translate-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,106,245,0.15); }
+.translate-input::placeholder { color: var(--text3); }
+
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+.btn-check { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(124,106,245,0.3); }
+.btn-check:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-check:active { transform: translateY(0); }
+.btn-skip { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); max-width: 70px; }
+.btn-audio { background: var(--surface2); color: var(--gold); border: 1px solid rgba(245,198,124,0.2); max-width: 44px; font-size: 15px; }
+
+.answer-reveal { display: none; margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--surface2); border-left: 3px solid var(--accent); }
+.answer-reveal.show { display: block; }
+.answer-correct-text { color: var(--accent3); font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.answer-notes { color: var(--text2); font-size: 12px; line-height: 1.6; }
+.answer-notes strong { color: var(--gold); }
+
+/* YouGlish 語塊標籤 */
+.yg-chunk {
+  display: inline-block;
+  background: rgba(245,198,124,0.12);
+  border: 1px solid rgba(245,198,124,0.3);
+  border-radius: 6px;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 1px 7px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.yg-chunk:hover {
+  background: rgba(245,198,124,0.25);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+.yg-chunk::after {
+  content: ' 🔍';
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.result-badge { display: none; position: absolute; top: 14px; right: 14px; font-size: 18px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.result-badge.show { display: block; }
+@keyframes popIn { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+/* ─── SECTION DIVIDER ─── */
+.section-divider { text-align: center; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin: 4px 0 10px; display: flex; align-items: center; gap: 8px; }
+.section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ─── YT BAR ─── */
+.yt-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0d1f; border-top: 1px solid var(--border); padding: 10px 14px 14px; z-index: 200; display: flex; align-items: center; gap: 10px; }
+.yt-thumb { width: 42px; height: 42px; border-radius: 8px; overflow: hidden; flex-shrink: 0; cursor: pointer; }
+.yt-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.yt-info { flex: 1; min-width: 0; }
+.yt-title { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.yt-artist { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.yt-btn { background: var(--accent); border: none; border-radius: 8px; color: white; font-size: 11px; font-weight: 700; padding: 7px 11px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
+.yt-btn:hover { background: var(--accent2); }
+
+/* ─── VOCAB POPUP ─── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; }
+.overlay.show { display: block; }
+.vocab-popup { display: none; position: fixed; bottom: 80px; left: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--accent); border-radius: 14px; padding: 14px; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: slideUp 0.25s ease; }
+.vocab-popup.show { display: block; }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.vocab-popup-word { font-family: 'Space Grotesk',sans-serif; font-size: 17px; font-weight: 700; color: var(--accent3); margin-bottom: 4px; }
+.vocab-popup-def { color: var(--text2); font-size: 13px; line-height: 1.5; }
+.vocab-popup-ex { margin-top: 8px; padding: 7px; background: var(--surface3); border-radius: 8px; font-size: 11px; color: var(--text3); font-style: italic; }
+.vocab-close { position: absolute; top: 10px; right: 12px; color: var(--text3); font-size: 17px; cursor: pointer; }
+
+/* ─── XP FLOAT ─── */
+.xp-float { position: fixed; font-size: 17px; font-weight: 800; color: var(--gold); pointer-events: none; z-index: 300; animation: floatUp 1.2s ease forwards; text-shadow: 0 0 20px rgba(245,198,124,0.5); }
+@keyframes floatUp { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-70px) scale(1.3)} }
+
+/* ─── WORD UNLOCK ─── */
+.word-unlock { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0); background: linear-gradient(135deg,#1e1a35,#252040); border: 1px solid var(--accent); border-radius: 18px; padding: 20px 28px; text-align: center; z-index: 400; box-shadow: 0 20px 60px rgba(0,0,0,0.7),0 0 40px rgba(124,106,245,0.2); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s; opacity: 0; pointer-events: none; }
+.word-unlock.show { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+.word-unlock-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 5px; }
+.word-unlock-word { font-family: 'Space Grotesk',sans-serif; font-size: 24px; font-weight: 800; color: var(--gold); margin-bottom: 3px; }
+.word-unlock-def { font-size: 13px; color: var(--text2); }
+
+/* ─── COMPLETE ─── */
+.complete-screen { display: none; text-align: center; padding: 36px 20px; }
+.complete-screen.show { display: block; }
+.complete-emoji { font-size: 56px; margin-bottom: 14px; animation: bounce 1s ease infinite alternate; }
+@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+.complete-title { font-family: 'Space Grotesk',sans-serif; font-size: 24px; font-weight: 800; background: linear-gradient(135deg,var(--accent2),var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.complete-stats { display: flex; justify-content: center; gap: 24px; margin: 18px 0; }
+.complete-stat-num { font-size: 32px; font-weight: 800; color: var(--gold); line-height: 1; }
+.complete-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+.btn-restart { background: linear-gradient(135deg,var(--accent),#9b5cf8); color: white; border: none; padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 14px; box-shadow: 0 8px 24px rgba(124,106,245,0.35); transition: all 0.2s; }
+.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(124,106,245,0.5); }
+.btn-next-song { background: var(--surface2); color: var(--accent3); border: 1px solid var(--border); padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; display: block; width: fit-content; margin-left: auto; margin-right: auto; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-artist" id="h-artist">🎵 載入中...</div>
+  <div class="header-title" id="h-title">追星學西語</div>
+  <div class="header-sub" id="h-sub"></div>
+  <div class="progress-section">
+    <div class="progress-meta">
+      <span id="progress-text">第 1 句</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-chip hi">🎯 正確 <span class="num" id="stat-correct">0</span></div>
+  <div class="stat-chip">📚 單字 <span class="num" id="stat-words">0</span></div>
+  <div class="stat-chip">⚡ 連勝 <span class="num" id="stat-streak">0</span></div>
+  <div class="streak-badge" id="streak-badge">🔥 <span id="streak-num">0</span> 連勝！</div>
+</div>
+
+<!-- Song Picker -->
+<div class="song-picker" id="song-picker"></div>
+
+<div class="content">
+  <div style="margin-top:14px"></div>
+  <div class="mode-tabs">
+    <div class="mode-tab active" onclick="setMode('translate')" id="tab-translate">✏️ 翻譯模式</div>
+    <div class="mode-tab" onclick="setMode('listen')" id="tab-listen">👀 看答案模式</div>
+  </div>
+</div>
+
+<div id="cards-container" style="padding:0 16px;"></div>
+<div class="complete-screen" id="complete-screen">
+  <div class="complete-emoji">🏆</div>
+  <div class="complete-title" id="complete-title">這首歌學完了！</div>
+  <div style="color:var(--text2);font-size:13px;" id="complete-sub"></div>
+  <div class="complete-stats">
+    <div class="complete-stat"><div class="complete-stat-num" id="final-correct">0</div><div class="complete-stat-label">句答對</div></div>
+    <div class="complete-stat"><div class="complete-stat-num" id="final-words">0</div><div class="complete-stat-label">新單字</div></div>
+    <div class="complete-stat"><div class="complete-stat-num" id="final-xp">0</div><div class="complete-stat-label">XP</div></div>
+  </div>
+  <button class="btn-restart" onclick="restart()">🔄 再練一次</button>
+  <button class="btn-next-song" onclick="nextSong()" id="btn-next">下一首 →</button>
+</div>
+
+<!-- YT Bar -->
+<div class="yt-bar">
+  <a id="yt-thumb-link" href="#" target="_blank" class="yt-thumb">
+    <img id="yt-thumb-img" src="" alt="">
+  </a>
+  <div class="yt-info">
+    <div class="yt-title" id="yt-title-bar">-</div>
+    <div class="yt-artist" id="yt-artist-bar">-</div>
+  </div>
+  <a id="yt-play-btn" href="#" target="_blank" class="yt-btn">▶ 播放整首</a>
+</div>
+
+<!-- Vocab Popup -->
+<div class="overlay" id="overlay" onclick="closeVocab()"></div>
+<div class="vocab-popup" id="vocab-popup">
+  <div class="vocab-close" onclick="closeVocab()">✕</div>
+  <div class="vocab-popup-word" id="vp-word"></div>
+  <div class="vocab-popup-def" id="vp-def"></div>
+  <div class="vocab-popup-ex" id="vp-ex"></div>
+</div>
+
+<div class="word-unlock" id="word-unlock">
+  <div class="word-unlock-label">✨ 新單字解鎖</div>
+  <div class="word-unlock-word" id="wu-word"></div>
+  <div class="word-unlock-def" id="wu-def"></div>
+</div>
+
+<script>
+const SONGS = [
+  {
+    id: 'cura',
+    title: "Cura pa' mi alma",
+    artist: "Vera GRV",
+    zh: "治癒我靈魂的藥",
+    ytId: "lZPurmEclzk",
+    sentences: [
+      { es:"Me di cuenta que sé querer de verdad", zh:"我意識到我真的懂得如何愛", ts:18, notes:"<strong>me di cuenta</strong> = 我意識到（過去式）<br><strong>sé querer</strong> = 我知道怎麼愛", vocab:[{word:"darse cuenta",def:"意識到、發現",ex:"Me di cuenta de todo. → 我意識到了一切。"},{word:"querer de verdad",def:"真心地愛",ex:"Te quiero de verdad. → 我真心愛你。"}] },
+      { es:"Por cómo me has querido", zh:"因為你愛我的方式", ts:24, notes:"<strong>por cómo</strong> = 因為…的方式<br><strong>me has querido</strong> = 你愛了我（現在完成式）", vocab:[{word:"por cómo",def:"因為…的方式",ex:"Por cómo hablas. → 因為你說話的方式。"}] },
+      { es:"Aunque la vida duela y el tiempo sepa amargo", zh:"雖然生活會痛，時間嚐起來苦澀", ts:29, notes:"<strong>aunque</strong> = 雖然<br><strong>duela</strong> = 痛（虛擬式）<br><strong>sepa amargo</strong> = 嚐起來苦", vocab:[{word:"aunque",def:"雖然、即使",ex:"Aunque llueva, salgo. → 即使下雨我也出門。"},{word:"doler",def:"痛、疼痛",ex:"Me duele la cabeza. → 我頭痛。"},{word:"amargo",def:"苦的、苦澀的",ex:"El café es amargo. → 咖啡是苦的。"}] },
+      { es:"Me decías que me fije en los milagros", zh:"你過去常告訴我要注意那些奇蹟", ts:37, notes:"<strong>me decías</strong> = 你過去常說（未完成過去式）<br><strong>que me fije</strong> = 要我注意（虛擬式）", vocab:[{word:"decir imperfecto",def:"過去常說",ex:"Me decía siempre. → 他總是這樣說。"},{word:"fijarse en",def:"注意、觀察",ex:"Fíjate bien. → 好好注意。"},{word:"milagro",def:"奇蹟",ex:"Es un milagro. → 這是個奇蹟。"}] },
+      { es:"Aunque la vida duela tienes en tus manos", zh:"即使生活會痛，你把它握在手中", ts:44, notes:"<strong>tienes en tus manos</strong> = 你把它握在手中<br>隱喻：你有能力掌控", vocab:[{word:"tener en manos",def:"掌握在手中",ex:"Lo tienes en tus manos. → 你掌握著它。"}] },
+      { es:"Cura pa' mi alma y ya no la escucho llorar", zh:"治癒我靈魂的藥，讓我再也聽不到她哭泣", ts:51, notes:"<strong>cura pa'</strong> = cura para（方言縮寫）<br><strong>ya no</strong> = 再也不<br><strong>escucho llorar</strong> = 聽到她哭", vocab:[{word:"pa'",def:"para的縮寫（方言）",ex:"Voy pa' casa. → 我要回家了。"},{word:"ya no",def:"再也不、不再",ex:"Ya no como carne. → 我不再吃肉了。"},{word:"llorar",def:"哭泣",ex:"Lloro a veces. → 我有時會哭。"}] },
+      { es:"Aprendiste bien a andar con lo justo", zh:"你學會了用剛好的東西過日子", ts:72, notes:"<strong>aprendiste</strong> = 你學會了（過去式）<br><strong>andar con lo justo</strong> = 用剛好的過活（慣用語）", vocab:[{word:"aprender pretérito",def:"學會（過去）",ex:"Aprendí a cocinar. → 我學會做飯了。"},{word:"andar con lo justo",def:"剛好夠用地過生活",ex:"Vivimos con lo justo. → 我們勉強夠用地生活。"}] },
+      { es:"A tirar del dolor de los tuyos", zh:"撐起你所愛之人的痛苦", ts:79, notes:"<strong>tirar del dolor</strong> = 扛住痛苦（慣用語）<br><strong>los tuyos</strong> = 你的人、你愛的人", vocab:[{word:"tirar de",def:"拉住、撐住",ex:"Tira de mí. → 拉著我。"},{word:"los tuyos",def:"你的人、你愛的人",ex:"Cuida a los tuyos. → 照顧好你的人。"}] },
+      { es:"Y que a fin de mes te mate el disgusto", zh:"而月底的煩惱快把你逼瘋", ts:85, notes:"<strong>a fin de mes</strong> = 月底<br><strong>te mate el disgusto</strong> = 煩惱把你殺死（誇飾法）", vocab:[{word:"a fin de mes",def:"月底",ex:"Pago a fin de mes. → 我月底付款。"},{word:"disgusto",def:"煩惱、令人不快之事",ex:"Qué disgusto. → 真讓人煩惱。"}] },
+      { es:"Y me sonrías diciéndome \"estaré bien\"", zh:"你還是對我微笑說「我會沒事的」", ts:92, notes:"<strong>me sonrías</strong> = 你對我微笑（過去未完成）<br><strong>estaré bien</strong> = 我會沒事（未來式）", vocab:[{word:"sonreír imperfecto",def:"過去常微笑",ex:"Me sonreía siempre. → 她總是對我微笑。"},{word:"estaré bien",def:"我會好的（未來）",ex:"No te preocupes, estaré bien. → 別擔心，我會好的。"}] },
+      { es:"Te miro y me calmo, te escucho y me aparto", zh:"看著你我平靜下來，聽著你我抽離了", ts:98, notes:"<strong>me calmo</strong> = 我平靜<br><strong>me aparto</strong> = 我抽離<br>兩個反身動詞對比", vocab:[{word:"calmarse",def:"平靜下來",ex:"Cálmate. → 冷靜一下。"},{word:"apartarse",def:"遠離、抽身",ex:"Me aparté de todo. → 我從一切中抽身了。"}] },
+      { es:"De aquellas voces que me hacen más daño", zh:"從那些傷我最深的聲音裡", ts:105, notes:"<strong>aquellas voces</strong> = 那些聲音（遠指）<br><strong>hacer daño</strong> = 傷害", vocab:[{word:"aquellas",def:"那些（遠指）",ex:"Aquellos días. → 那些日子。"},{word:"hacer daño",def:"傷害、造成傷害",ex:"Me hace daño. → 它傷害了我。"}] },
+      { es:"Lo hiciste sin poder, me diste sin tener", zh:"你在無能為力時做到了，在一無所有時給了我", ts:111, notes:"⭐ <strong>全首歌最核心一句</strong><br><strong>sin poder</strong> = 沒有力氣的時候<br><strong>sin tener</strong> = 沒有擁有的時候", vocab:[{word:"sin poder",def:"沒有力量地、無能為力地",ex:"Lo hice sin poder. → 我在無力中做到了。"},{word:"dar sin tener",def:"沒有的時候也給出去",ex:"Dio sin tener nada. → 她在一無所有時給予了。"}] },
+      { es:"Cura pa' mi alma y ya no la escucho llorar", zh:"治癒我靈魂的藥，讓我再也聽不到她哭泣", ts:118, notes:"副歌最後一遍——你已經把這首歌學完了 🎉", vocab:[] }
+    ],
+    sections: { 0:"🎵 Verso 1", 5:"🎶 Estribillo", 6:"🎵 Verso 2", 11:"🎶 Estribillo", 13:"🔚 Outro" }
+  },
+  {
+    id: 'olvido',
+    title: "Olvido",
+    artist: "Santa Sabina",
+    zh: "遺忘",
+    ytId: "JoRyZxkkgR4",
+    sentences: [
+      { es:"Buscar, buscando la luz del lado de la noche", zh:"尋找，在黑夜的那一側尋找光", ts:10, notes:"<strong>buscar / buscando</strong> = 尋找（動名詞表持續狀態）<br><strong>del lado de</strong> = 在…的那一側", vocab:[{word:"buscando",def:"正在尋找（動名詞）",ex:"Estoy buscando algo. → 我在找某樣東西。"},{word:"del lado de",def:"在…那一側",ex:"Del lado de la noche. → 在黑夜那一側。"}] },
+      { es:"del lado del olvido", zh:"在遺忘的那一側", ts:16, notes:"<strong>olvido</strong> = 遺忘、被遺忘的狀態（也是這首歌的歌名）", vocab:[{word:"olvido",def:"遺忘、被遺忘",ex:"Caer en el olvido. → 被遺忘、消失在記憶中。"}] },
+      { es:"Cuántos siglos han pasado, cuánto dolor olvidado", zh:"多少個世紀過去了，多少痛苦被遺忘", ts:20, notes:"<strong>cuántos</strong> = 多少（感嘆用法）<br><strong>han pasado</strong> = 已經過去了（現在完成式）", vocab:[{word:"cuántos siglos",def:"多少個世紀",ex:"¡Cuántos años han pasado! → 多少年過去了！"},{word:"han pasado",def:"已經過去了（現在完成）",ex:"Han pasado tres horas. → 三個小時過去了。"}] },
+      { es:"Qué importa la muerte si la vida no es vida", zh:"如果生命不是生命，死亡又有何意義", ts:28, notes:"<strong>qué importa</strong> = 有什麼關係、又如何<br><strong>si</strong> = 如果（條件句）", vocab:[{word:"qué importa",def:"有什麼關係、又如何",ex:"Qué importa lo que digan. → 管他們說什麼。"},{word:"importar",def:"重要、在乎",ex:"No me importa. → 我不在乎。"}] },
+      { es:"Qué importa la vida si la muerte es la vida", zh:"如果死亡才是生命，活著又有何意義", ts:35, notes:"和上一句形成完美對仗——生死互換的哲學提問", vocab:[{word:"la muerte es la vida",def:"死亡即是生命（哲學意象）",ex:"En la oscuridad hay luz. → 在黑暗中有光。"}] },
+      { es:"Veo una luz que rebasa mi muerte", zh:"我看見一道光，超越了我的死亡", ts:42, notes:"<strong>veo</strong> = 我看見（現在式）<br><strong>rebasar</strong> = 超越、溢出", vocab:[{word:"rebasar",def:"超越、超過、溢出",ex:"Rebasa mis expectativas. → 超出我的期望。"},{word:"veo",def:"我看見（ver現在式）",ex:"Veo luz. → 我看見光。"}] },
+      { es:"Veo el amor que me invita a ser fuerte", zh:"我看見那份愛，邀請我變得堅強", ts:47, notes:"<strong>invitar a</strong> = 邀請、促使去做某事<br><strong>ser fuerte</strong> = 變堅強", vocab:[{word:"invitar a",def:"邀請去做、促使",ex:"Me invita a bailar. → 他邀我跳舞。"},{word:"ser fuerte",def:"成為堅強的人",ex:"Tienes que ser fuerte. → 你必須堅強。"}] },
+      { es:"Y desde la esperanza quiero mirar al otro lado de la noche", zh:"從希望出發，我想看向黑夜的另一側", ts:55, notes:"<strong>desde la esperanza</strong> = 從希望出發<br><strong>al otro lado</strong> = 到另一側", vocab:[{word:"desde",def:"從（時間/地點起點）",ex:"Desde hoy. → 從今天起。"},{word:"esperanza",def:"希望",ex:"Tengo esperanza. → 我有希望。"},{word:"al otro lado",def:"到另一側",ex:"Al otro lado del río. → 在河的另一側。"}] },
+      { es:"Del árbol de la rabia quiero gritar al otro lado de la noche", zh:"從憤怒之樹，我想向黑夜的另一側吶喊", ts:63, notes:"<strong>árbol de la rabia</strong> = 憤怒之樹（詩意意象）<br><strong>gritar</strong> = 吶喊、大喊", vocab:[{word:"rabia",def:"憤怒、狂怒",ex:"Siento rabia. → 我感到憤怒。"},{word:"gritar",def:"大喊、吶喊",ex:"Grita con fuerza. → 用力吶喊。"}] },
+      { es:"Buscar, buscando la luz detrás de esta mordaza", zh:"尋找，在這口塞之後尋找光", ts:80, notes:"<strong>mordaza</strong> = 口塞、噤聲的工具（政治意象）<br>這首歌寫於墨西哥政治壓迫時期", vocab:[{word:"mordaza",def:"口塞、噤聲（比喻審查）",ex:"Ponen una mordaza a la prensa. → 他們噤了媒體的聲音。"}] },
+      { es:"y de un nombre inventado", zh:"和一個被發明出來的名字之後", ts:86, notes:"暗指政治壓迫下的假名、被消除的身份", vocab:[{word:"inventado",def:"被發明的、捏造的",ex:"Un nombre inventado. → 一個假造的名字。"}] },
+      { es:"Cuánto dolor anidado", zh:"多少痛苦在此棲居", ts:91, notes:"<strong>anidado</strong> = 築巢的、棲居的<br>比喻痛苦深深嵌入", vocab:[{word:"anidar",def:"築巢、深深棲居（比喻）",ex:"El miedo anida en el corazón. → 恐懼棲居在心中。"}] },
+      { es:"¿Importan mis pasos en este mundo olvidado?", zh:"在這個被遺忘的世界裡，我的腳步有意義嗎？", ts:98, notes:"<strong>importan mis pasos</strong> = 我的腳步重要嗎<br>全曲最沉重的問題，也是最美的一句", vocab:[{word:"pasos",def:"腳步、步伐",ex:"Sigo mis pasos. → 我跟隨自己的腳步。"},{word:"mundo olvidado",def:"被遺忘的世界",ex:"Un lugar olvidado. → 一個被遺忘的地方。"}] }
+    ],
+    sections: { 0:"🎵 Intro", 3:"🖤 核心哲學句", 5:"✨ Estribillo", 7:"🌑 Puente", 9:"🎵 Verso 2", 12:"🔚 問句結尾" }
+  },
+  {
+    id: 'eco',
+    title: "Canción del Eco",
+    artist: "Christina Rosenvinge",
+    zh: "回聲之歌",
+    ytId: "7jWJKFp5K-8",
+    sentences: [
+      { es:"Condenada por los dioses, sin su linda voz", zh:"被神明詛咒，失去了她美麗的聲音", ts:8, notes:"<strong>condenada</strong> = 被詛咒的、被判定的<br><strong>sin su voz</strong> = 沒有她的聲音", vocab:[{word:"condenado/a",def:"被詛咒的、被判定的",ex:"Condenado al olvido. → 被詛咒遺忘。"},{word:"linda",def:"美麗的（拉丁美洲口語）",ex:"Qué linda voz. → 多美的聲音。"}] },
+      { es:"Eco se esconde en la cueva con su dolor", zh:"回聲躲進洞穴，帶著她的痛苦", ts:14, notes:"<strong>esconderse</strong> = 躲藏、隱藏自己<br><strong>cueva</strong> = 洞穴", vocab:[{word:"esconderse",def:"躲藏、藏身",ex:"Se esconde del mundo. → 她躲避世界。"},{word:"cueva",def:"洞穴",ex:"Vive en una cueva. → 她住在洞穴裡。"}] },
+      { es:"El corazón mudo sólo puede repetir", zh:"沉默的心只能重複", ts:20, notes:"<strong>mudo</strong> = 沉默的、啞的<br><strong>repetir</strong> = 重複——回聲的本質", vocab:[{word:"mudo",def:"沉默的、無法說話的",ex:"Se quedó mudo. → 他沉默了（說不出話）。"},{word:"repetir",def:"重複",ex:"Solo puede repetir. → 她只能重複。"}] },
+      { es:"las últimas sílabas que acaba de oír", zh:"剛才聽到的最後幾個音節", ts:25, notes:"<strong>las últimas sílabas</strong> = 最後幾個音節（回聲只能重複別人說的最後幾個字）<br><strong>acabar de + inf</strong> = 剛剛做了某事", vocab:[{word:"sílaba",def:"音節",ex:"La palabra tiene tres sílabas. → 這個字有三個音節。"},{word:"acabar de",def:"剛剛做了（現在完成義）",ex:"Acabo de llegar. → 我剛到。"}] },
+      { es:"Narciso es soberbio, ¡Por Dios que guapo es!", zh:"納西瑟斯多傲慢，天啊他多英俊！", ts:32, notes:"<strong>soberbio</strong> = 傲慢的<br><strong>por Dios</strong> = 天啊（感嘆語）<br><strong>guapo</strong> = 帥、好看", vocab:[{word:"soberbio",def:"傲慢的、自大的",ex:"Es muy soberbio. → 他非常傲慢。"},{word:"por Dios",def:"天啊、我的天（感嘆）",ex:"¡Por Dios, qué tarde es! → 天啊，這麼晚了！"},{word:"guapo",def:"帥、好看",ex:"Qué guapo está hoy. → 他今天好帥。"}] },
+      { es:"Las ninfas se ofrecen ante su desinterés", zh:"仙女們向他獻身，而他漠然", ts:38, notes:"<strong>ofrecerse</strong> = 獻身、自我奉獻<br><strong>desinterés</strong> = 漠然、不感興趣", vocab:[{word:"ofrecerse",def:"獻身、自我奉獻",ex:"Se ofrece a ayudar. → 他自願來幫忙。"},{word:"desinterés",def:"漠然、不感興趣",ex:"Muestra desinterés. → 他表現出漠然。"}] },
+      { es:"Pasea en el bosque su melancolía", zh:"他的憂鬱在森林裡漫步", ts:44, notes:"<strong>pasear</strong> = 漫步、散步<br><strong>melancolía</strong> = 憂鬱（他的憂鬱像個獨立的存在在散步）", vocab:[{word:"pasear",def:"散步、漫步",ex:"Paseo por el parque. → 我在公園散步。"},{word:"melancolía",def:"憂鬱、哀愁",ex:"Vive en la melancolía. → 她活在憂鬱中。"}] },
+      { es:"Nada es suficiente, su alma está vacía", zh:"什麼都不夠，他的靈魂是空的", ts:50, notes:"<strong>suficiente</strong> = 足夠的<br><strong>vacío/a</strong> = 空的、虛無的", vocab:[{word:"suficiente",def:"足夠的",ex:"No es suficiente. → 這不夠。"},{word:"vacío",def:"空的、虛無的",ex:"Me siento vacío. → 我感到空虛。"}] },
+      { es:"Eco de lejos le espía y suspira amor", zh:"回聲從遠處窺視他，嘆出一個「愛」字", ts:57, notes:"<strong>espiar</strong> = 窺視、偷看<br><strong>suspirar</strong> = 嘆氣<br>回聲只能重複，所以她的「表白」只是嘆氣", vocab:[{word:"espiar",def:"窺視、偷看",ex:"La espía desde lejos. → 他從遠處窺視她。"},{word:"suspirar",def:"嘆氣",ex:"Suspira de amor. → 她為愛嘆息。"}] },
+      { es:"¿Cómo confesarlo sin tener su voz?", zh:"沒有自己的聲音，怎麼告白？", ts:63, notes:"<strong>confesar</strong> = 告白、坦白<br><strong>sin tener su voz</strong> = 沒有她的聲音<br>這是全曲最核心的悲劇", vocab:[{word:"confesar",def:"告白、坦白、承認",ex:"Quiero confesarte algo. → 我想告訴你一件事。"},{word:"sin tener",def:"沒有（某物）的狀態下",ex:"Sin tener dinero. → 在沒有錢的情況下。"}] },
+      { es:"¿Quién eres tú, niña loca?", zh:"你是誰，瘋丫頭？", ts:72, notes:"<strong>niña loca</strong> = 瘋丫頭（納西瑟斯的殘忍回應）<br>這是他對回聲的拒絕", vocab:[{word:"niña loca",def:"瘋丫頭（帶貶義）",ex:"¿Por qué haces eso, niña loca? → 你為什麼這樣做，瘋丫頭？"}] },
+      { es:"Muero antes que darte un beso", zh:"我寧死也不給你一個吻", ts:77, notes:"<strong>muero antes que</strong> = 我寧死也不<br>最殘忍的拒絕句式", vocab:[{word:"antes que",def:"比起…寧願（強烈選擇）",ex:"Antes muerto que rendirme. → 我寧死也不投降。"}] },
+      { es:"Narciso recibe castigo por ser tan cruel", zh:"納西瑟斯因如此殘忍而受到懲罰", ts:90, notes:"<strong>recibir castigo</strong> = 受到懲罰<br><strong>por ser tan</strong> = 因為如此…（原因句）", vocab:[{word:"castigo",def:"懲罰",ex:"Recibe su castigo. → 他受到了懲罰。"},{word:"por ser",def:"因為是、因為如此",ex:"Por ser tan buena. → 因為她如此善良。"}] },
+      { es:"La imagen es vana, el llanto no tiene fin", zh:"影像是虛妄的，哭泣沒有終點", ts:98, notes:"<strong>vano/a</strong> = 虛妄的、無意義的<br><strong>llanto</strong> = 哭泣、哭聲<br><strong>no tiene fin</strong> = 沒有終點", vocab:[{word:"vano",def:"虛妄的、無意義的",ex:"Un esfuerzo vano. → 徒勞的努力。"},{word:"llanto",def:"哭泣、哭聲",ex:"Se ahoga en el llanto. → 她溺在哭聲中。"}] }
+    ],
+    sections: { 0:"🏛️ 回聲的詛咒", 4:"💫 納西瑟斯", 8:"💔 無聲的告白", 10:"😈 殘忍的拒絕", 12:"🔚 神話的結局" }
+  }
+];
+
+// ─── STATE ───
+let currentSongIdx = 0;
+let currentMode = 'translate';
+let checkedCards = new Set();
+let unlockedWords = new Set();
+let correctCount = 0;
+let wordsUnlocked = 0;
+let streakCount = 0;
+let totalXP = 0;
+
+function getSong() { return SONGS[currentSongIdx]; }
+
+function initSong(idx) {
+  currentSongIdx = idx;
+  checkedCards.clear();
+  unlockedWords.clear();
+  correctCount = 0;
+  wordsUnlocked = 0;
+  streakCount = 0;
+  totalXP = 0;
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('cards-container').style.display = '';
+  document.getElementById('streak-badge').style.display = 'none';
+  updateHeader();
+  updateYTBar();
+  updateStats();
+  renderPicker();
+  renderCards();
+  window.scrollTo(0,0);
+}
+
+function updateHeader() {
+  const s = getSong();
+  document.getElementById('h-artist').textContent = '🎵 ' + s.artist + ' · 西語學習';
+  document.getElementById('h-title').textContent = s.title;
+  document.getElementById('h-sub').textContent = s.zh;
+}
+
+function updateYTBar() {
+  const s = getSong();
+  const url = 'https://www.youtube.com/watch?v=' + s.ytId;
+  document.getElementById('yt-thumb-link').href = url;
+  document.getElementById('yt-thumb-img').src = 'https://img.youtube.com/vi/' + s.ytId + '/mqdefault.jpg';
+  document.getElementById('yt-title-bar').textContent = s.title;
+  document.getElementById('yt-artist-bar').textContent = s.artist;
+  document.getElementById('yt-play-btn').href = url;
+}
+
+function renderPicker() {
+  const picker = document.getElementById('song-picker');
+  picker.innerHTML = '';
+  SONGS.forEach((s, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'song-chip' + (i === currentSongIdx ? ' active' : '');
+    const progress = Math.round(((checkedCards.size || 0) / s.sentences.length) * 100);
+    chip.innerHTML = `
+      <div class="song-chip-title">${s.title}</div>
+      <div class="song-chip-artist">${s.artist}</div>
+      ${i === currentSongIdx && checkedCards.size > 0 ? `<div class="song-chip-done">${checkedCards.size}/${s.sentences.length} 句</div>` : ''}
+    `;
+    chip.onclick = () => initSong(i);
+    picker.appendChild(chip);
+  });
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('tab-translate').classList.toggle('active', mode === 'translate');
+  document.getElementById('tab-listen').classList.toggle('active', mode === 'listen');
+  renderCards();
+}
+
+function renderNotes(notes) {
+  // 把 <strong>語塊</strong> 轉成 YouGlish 可點連結
+  return notes.replace(/<strong>(.*?)<\/strong>/g, (match, chunk) => {
+    const word = chunk.replace(/[()（）]/g, '').trim().split('=')[0].trim();
+    const url = 'https://youglish.com/pronounce/' + encodeURIComponent(word) + '/spanish';
+    return `<a class="yg-chunk" href="${url}" target="_blank">${chunk}</a>`;
+  });
+}
+
+function renderCards() {
+  const s = getSong();
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  s.sentences.forEach((sent, i) => {
+    if (s.sections[i]) {
+      const div = document.createElement('div');
+      div.className = 'section-divider';
+      div.textContent = s.sections[i];
+      container.appendChild(div);
+    }
+
+    const isChecked = checkedCards.has(i);
+    const card = document.createElement('div');
+    card.className = 'sentence-card' + (isChecked ? ' correct' : '');
+    card.id = 'card-' + i;
+
+    const vocabTags = sent.vocab.map((v, vi) => {
+      const safeWord = v.word.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      const safeDef = v.def.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      const safeEx = v.ex.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      return `<span class="vocab-tag" data-word="${safeWord}" data-def="${safeDef}" data-ex="${safeEx}" onclick="handleVocabTag(this)">${v.word.split(' ')[0]}</span>`;
+    }).join('');
+
+    const tsUrl = 'https://www.youtube.com/watch?v=' + s.ytId + '&t=' + sent.ts + 's';
+    const tsMins = Math.floor(sent.ts/60);
+    const tsSecs = sent.ts % 60;
+    const tsLabel = tsMins + ':' + String(tsSecs).padStart(2,'0');
+
+    const resultBadge = `<div class="result-badge ${isChecked ? 'show' : ''}" id="badge-${i}">${isChecked ? '✅' : ''}</div>`;
+
+    if (currentMode === 'translate') {
+      card.innerHTML = `
+        ${resultBadge}
+        <div class="sentence-index">第 ${i+1} 句 / ${s.sentences.length}</div>
+        <div class="sentence-es">${sent.es}</div>
+        ${sent.vocab.length > 0 ? `<div class="sentence-vocab">${vocabTags}</div>` : ''}
+        <a class="ts-btn" href="${tsUrl}" target="_blank">▶ ${tsLabel} 聽這句</a>
+        <div class="translate-label">你的翻譯：</div>
+        <textarea class="translate-input" id="input-${i}" rows="2" placeholder="用中文或英文寫下你的理解…" ${isChecked ? 'disabled' : ''}>${isChecked ? sent.zh : ''}</textarea>
+        <div class="btn-row">
+          <button class="btn btn-check" onclick="checkAnswer(${i})" ${isChecked ? 'disabled style="opacity:0.5"' : ''}>✓ 核對答案</button>
+          <button class="btn btn-audio" onclick="speak(${JSON.stringify(sent.es)})" title="朗讀">🔊</button>
+          <button class="btn btn-skip" onclick="skipCard(${i})" ${isChecked ? 'disabled style="opacity:0.5"' : ''}>跳過</button>
+        </div>
+        <div class="answer-reveal ${isChecked ? 'show' : ''}" id="reveal-${i}">
+          <div class="answer-correct-text">✦ 參考翻譯</div>
+          <div style="font-size:15px;color:var(--accent3);font-weight:600;margin-bottom:5px;">${sent.zh}</div>
+          <div class="answer-notes">${renderNotes(sent.notes)}</div>
+      card.innerHTML = `
+        <div class="sentence-index">第 ${i+1} 句 / ${s.sentences.length}</div>
+        <div class="sentence-es">${sent.es}</div>
+        <div style="color:var(--text2);font-size:14px;margin:6px 0 8px;">${sent.zh}</div>
+        ${sent.vocab.length > 0 ? `<div class="sentence-vocab">${vocabTags}</div>` : ''}
+        <a class="ts-btn" href="${tsUrl}" target="_blank">▶ ${tsLabel} 聽這句</a>
+        <div class="answer-notes">${renderNotes(sent.notes)}</div>
+      `;
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function checkAnswer(i) {
+  const input = document.getElementById('input-' + i);
+  if (!input.value.trim()) {
+    input.style.borderColor = 'var(--red)';
+    setTimeout(() => input.style.borderColor = '', 800);
+    return;
+  }
+  const s = getSong();
+  checkedCards.add(i);
+  correctCount++;
+  streakCount++;
+  totalXP += 10 + (streakCount >= 3 ? 5 : 0);
+
+  const card = document.getElementById('card-' + i);
+  card.classList.add('correct');
+  const badge = document.getElementById('badge-' + i);
+  badge.textContent = '✅';
+  badge.classList.add('show');
+  document.getElementById('reveal-' + i).classList.add('show');
+  input.value = s.sentences[i].zh;
+  input.disabled = true;
+
+  s.sentences[i].vocab.forEach(v => {
+    if (!unlockedWords.has(v.word)) {
+      unlockedWords.add(v.word);
+      wordsUnlocked++;
+      showWordUnlock(v.word, v.def);
+    }
+  });
+
+  updateStats();
+  showXP('+10 XP', card);
+  if (streakCount >= 3) showXP('🔥 +5', card, true);
+  if (checkedCards.size === s.sentences.length) setTimeout(showComplete, 800);
+}
+
+function skipCard(i) {
+  const s = getSong();
+  checkedCards.add(i);
+  streakCount = 0;
+  const card = document.getElementById('card-' + i);
+  const badge = document.getElementById('badge-' + i);
+  badge.textContent = '💡';
+  badge.classList.add('show');
+  document.getElementById('reveal-' + i).classList.add('show');
+  const input = document.getElementById('input-' + i);
+  if (input) { input.value = s.sentences[i].zh; input.disabled = true; }
+  updateStats();
+  if (checkedCards.size === s.sentences.length) setTimeout(showComplete, 800);
+}
+
+function updateStats() {
+  const s = getSong();
+  const pct = Math.round((checkedCards.size / s.sentences.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-text').textContent = `第 ${Math.min(checkedCards.size+1, s.sentences.length)} 句，共 ${s.sentences.length} 句`;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-words').textContent = wordsUnlocked;
+  document.getElementById('stat-streak').textContent = streakCount;
+  if (streakCount >= 3) {
+    const b = document.getElementById('streak-badge');
+    b.style.display = 'flex';
+    document.getElementById('streak-num').textContent = streakCount;
+  }
+  renderPicker();
+}
+
+function showXP(text, el, bonus=false) {
+  const xp = document.createElement('div');
+  xp.className = 'xp-float';
+  xp.textContent = text;
+  xp.style.color = bonus ? 'var(--gold)' : 'var(--accent3)';
+  const rect = el.getBoundingClientRect();
+  xp.style.left = (rect.left + rect.width/2 - 25) + 'px';
+  xp.style.top = (rect.top + window.scrollY - 10) + 'px';
+  document.body.appendChild(xp);
+  setTimeout(() => xp.remove(), 1200);
+}
+
+let wuTimer;
+function showWordUnlock(word, def) {
+  clearTimeout(wuTimer);
+  document.getElementById('wu-word').textContent = word;
+  document.getElementById('wu-def').textContent = def;
+  const wu = document.getElementById('word-unlock');
+  wu.classList.add('show');
+  wuTimer = setTimeout(() => wu.classList.remove('show'), 2000);
+}
+
+function handleVocabTag(el) {
+  const word = el.getAttribute('data-word');
+  const def = el.getAttribute('data-def');
+  const ex = el.getAttribute('data-ex');
+  showVocab(word, def, ex);
+}
+
+function showVocab(word, def, ex) {
+  document.getElementById('vp-word').textContent = word;
+  document.getElementById('vp-def').textContent = def;
+  document.getElementById('vp-ex').textContent = ex;
+  document.getElementById('vocab-popup').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeVocab() {
+  document.getElementById('vocab-popup').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function speak(text) {
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'es-ES'; u.rate = 0.85;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+function showComplete() {
+  const s = getSong();
+  document.getElementById('cards-container').style.display = 'none';
+  document.getElementById('complete-title').textContent = `《${s.title}》學完了！`;
+  document.getElementById('complete-sub').textContent = s.artist + ' · ' + s.zh;
+  document.getElementById('final-correct').textContent = correctCount;
+  document.getElementById('final-words').textContent = wordsUnlocked;
+  document.getElementById('final-xp').textContent = totalXP;
+  const nextBtn = document.getElementById('btn-next');
+  if (currentSongIdx < SONGS.length - 1) {
+    nextBtn.textContent = '下一首：' + SONGS[currentSongIdx+1].title + ' →';
+    nextBtn.style.display = 'block';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+  document.getElementById('complete-screen').classList.add('show');
+}
+
+function restart() {
+  document.getElementById('complete-screen').classList.remove('show');
+  checkedCards.clear();
+  unlockedWords.clear();
+  correctCount = 0; wordsUnlocked = 0; streakCount = 0; totalXP = 0;
+  document.getElementById('streak-badge').style.display = 'none';
+  document.getElementById('cards-container').style.display = '';
+  updateStats();
+  renderCards();
+  window.scrollTo(0,0);
+}
+
+function nextSong() {
+  if (currentSongIdx < SONGS.length - 1) initSong(currentSongIdx + 1);
+}
+
+// Init
+initSong(0);
+</script>
+</body>
+</html>
