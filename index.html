@@ -516,6 +516,145 @@ const SONGS = [
     ]
   }
 ];
+var currentSongIdx = 0;
+var currentMode = "translate";
+var checkedCards = new Set();
+var unlockedWords = new Set();
+var correctCount = 0;
+var wordsUnlocked = 0;
+var streakCount = 0;
+var totalXP = 0;
+
+function getSong() { return SONGS[currentSongIdx]; }
+
+function initSong(idx) {
+  currentSongIdx = idx;
+  checkedCards.clear();
+  unlockedWords.clear();
+  correctCount = 0; wordsUnlocked = 0; streakCount = 0; totalXP = 0;
+  document.getElementById("complete-screen").classList.remove("show");
+  document.getElementById("cards-container").style.display = "";
+  document.getElementById("streak-badge").style.display = "none";
+  updateHeader();
+  updateYTBar();
+  updateStats();
+  renderPicker();
+  renderCards();
+  window.scrollTo(0,0);
+}
+
+function updateHeader() {
+  var s = getSong();
+  document.getElementById("h-artist").textContent = "🎵 " + s.artist + " · 西語學習";
+  document.getElementById("h-title").textContent = s.title;
+  document.getElementById("h-sub").textContent = s.zh;
+}
+
+function updateYTBar() {
+  var s = getSong();
+  var url = "https://www.youtube.com/watch?v=" + s.ytId;
+  document.getElementById("yt-thumb-link").href = url;
+  document.getElementById("yt-thumb-img").src = "https://img.youtube.com/vi/" + s.ytId + "/mqdefault.jpg";
+  document.getElementById("yt-title-bar").textContent = s.title;
+  document.getElementById("yt-artist-bar").textContent = s.artist;
+  document.getElementById("yt-play-btn").href = url;
+}
+
+function renderPicker() {
+  var picker = document.getElementById("song-picker");
+  picker.innerHTML = "";
+  SONGS.forEach(function(s, i) {
+    var chip = document.createElement("div");
+    chip.className = "song-chip" + (i === currentSongIdx ? " active" : "");
+    var title = document.createElement("div");
+    title.className = "song-chip-title";
+    title.textContent = s.title;
+    var artist = document.createElement("div");
+    artist.className = "song-chip-artist";
+    artist.textContent = s.artist;
+    chip.appendChild(title);
+    chip.appendChild(artist);
+    if (i === currentSongIdx && checkedCards.size > 0) {
+      var done = document.createElement("div");
+      done.className = "song-chip-done";
+      done.textContent = checkedCards.size + "/" + s.sentences.length + " 句";
+      chip.appendChild(done);
+    }
+    chip.onclick = function() { initSong(i); };
+    picker.appendChild(chip);
+  });
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById("tab-translate").classList.toggle("active", mode === "translate");
+  document.getElementById("tab-listen").classList.toggle("active", mode === "listen");
+  renderCards();
+}
+
+function renderNotes(notes) {
+  return notes.replace(/\[([^\]]+)\]/g, function(match, chunk) {
+    var word = chunk.trim();
+    var url = "https://youglish.com/pronounce/" + encodeURIComponent(word) + "/spanish";
+    var a = document.createElement("a");
+    a.className = "yg-chunk";
+    a.href = url;
+    a.target = "_blank";
+    a.textContent = chunk + " 🔍";
+    return a.outerHTML;
+  });
+}
+
+function renderCards() {
+  var s = getSong();
+  var container = document.getElementById("cards-container");
+  container.innerHTML = "";
+
+  s.sentences.forEach(function(sent, i) {
+    if (s.sections[i]) {
+      var div = document.createElement("div");
+      div.className = "section-divider";
+      div.textContent = s.sections[i];
+      container.appendChild(div);
+    }
+
+    var isChecked = checkedCards.has(i);
+    var card = document.createElement("div");
+    card.className = "sentence-card" + (isChecked ? " correct" : "");
+    card.id = "card-" + i;
+
+    var tsUrl = "https://www.youtube.com/watch?v=" + s.ytId + "&t=" + sent.ts + "s";
+    var tsMins = Math.floor(sent.ts/60);
+    var tsSecs = sent.ts % 60;
+    var tsLabel = tsMins + ":" + String(tsSecs).padStart(2,"0");
+
+    // Badge
+    var badge = document.createElement("div");
+    badge.className = "result-badge" + (isChecked ? " show" : "");
+    badge.id = "badge-" + i;
+    badge.textContent = isChecked ? "✅" : "";
+    card.appendChild(badge);
+
+    // Index
+    var idx = document.createElement("div");
+    idx.className = "sentence-index";
+    idx.textContent = "第 " + (i+1) + " 句 / " + s.sentences.length;
+    card.appendChild(idx);
+
+    // Spanish
+    var esDiv = document.createElement("div");
+    esDiv.className = "sentence-es";
+    esDiv.textContent = sent.es;
+    card.appendChild(esDiv);
+
+    // Vocab tags
+    if (sent.vocab.length > 0) {
+      var vtDiv = document.createElement("div");
+      vtDiv.className = "sentence-vocab";
+      sent.vocab.forEach(function(v) {
+        var tag = document.createElement("span");
+        tag.className = "vocab-tag";
+        tag.textContent = v.word.split(" ")[0];
         tag.setAttribute("data-word", v.word);
         tag.setAttribute("data-def", v.def);
         tag.setAttribute("data-ex", v.ex);
@@ -525,14 +664,13 @@ const SONGS = [
       card.appendChild(vtDiv);
     }
 
-    // Timestamp button - seek in player instead of new tab
-    var tsBtn = document.createElement("button");
-    tsBtn.className = "ts-btn";
-    tsBtn.textContent = "▶ " + tsLabel + " 聽這句";
-    (function(sec) {
-      tsBtn.onclick = function() { seekTo(sec); };
-    })(sent.ts);
-    card.appendChild(tsBtn);
+    // Timestamp
+    var tsLink = document.createElement("a");
+    tsLink.className = "ts-btn";
+    tsLink.href = tsUrl;
+    tsLink.target = "_blank";
+    tsLink.textContent = "▶ " + tsLabel + " 聽這句";
+    card.appendChild(tsLink);
 
     if (currentMode === "translate") {
       var tlabel = document.createElement("div");
