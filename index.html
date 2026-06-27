@@ -3,350 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎵 追星學西語 v7</title>
+<title>追星學西語</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
-:root {
-  --bg: #0d0b1a;
-  --surface: #161229;
-  --surface2: #1e1a35;
-  --surface3: #252040;
-  --accent: #7c6af5;
-  --accent2: #a78bfa;
-  --accent3: #c4b5fd;
-  --gold: #f5c67c;
-  --green: #4ade80;
-  --red: #f87171;
-  --text: #e8e4ff;
-  --text2: #a89fd4;
-  --text3: #6b64a0;
-  --border: #2a2350;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  min-height: 100vh;
-  padding-bottom: 90px;
-  overflow-x: hidden;
-}
-
-/* ─── SONG PICKER ─── */
-.song-picker-wrap {
-  position: relative;
-  margin-top: 14px;
-}
-.song-picker-wrap::after {
-  content: '›';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: var(--accent2);
-  background: linear-gradient(to right, transparent, var(--bg) 60%);
-  pointer-events: none;
-}
-.song-picker {
-  padding: 0 16px;
-  overflow-x: auto;
-  display: flex;
-  gap: 10px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.song-picker::-webkit-scrollbar { display: none; }
-.song-picker-hint {
-  text-align: center;
-  font-size: 10px;
-  color: var(--text3);
-  padding: 5px 0 0;
-  letter-spacing: 0.05em;
-}
-
-.song-chip {
-  flex-shrink: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-  min-width: 130px;
-}
-.song-chip.active {
-  border-color: var(--accent);
-  background: rgba(124,106,245,0.12);
-  box-shadow: 0 0 16px rgba(124,106,245,0.2);
-}
-.song-chip-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
-}
-.song-chip-artist {
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 2px;
-}
-.song-chip-done {
-  font-size: 10px;
-  color: var(--green);
-  margin-top: 3px;
-}
-
-/* ─── HEADER ─── */
-.header {
-  background: linear-gradient(180deg, #1a1530 0%, var(--bg) 100%);
-  padding: 24px 20px 16px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-}
-.header-artist { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 4px; font-weight: 600; }
-.header-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-.header-sub { font-size: 11px; color: var(--text3); margin-bottom: 12px; }
-
-/* ─── PROGRESS ─── */
-.progress-section { padding: 0 20px; margin-bottom: 4px; }
-.progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 6px; }
-.progress-bar-bg { background: var(--surface2); border-radius: 99px; height: 7px; overflow: hidden; }
-.progress-bar-fill { background: linear-gradient(90deg, var(--accent), var(--accent2)); height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 0 10px rgba(124,106,245,0.5); }
-
-/* ─── STATS ─── */
-.stats-row { display: flex; gap: 8px; padding: 10px 20px 0; overflow-x: auto; scrollbar-width: none; }
-.stats-row::-webkit-scrollbar { display: none; }
-.stat-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 11px; font-size: 11px; white-space: nowrap; display: flex; align-items: center; gap: 4px; color: var(--text2); }
-.stat-chip.hi { border-color: var(--accent); color: var(--accent3); background: rgba(124,106,245,0.1); }
-.stat-chip .num { font-weight: 700; color: var(--gold); font-size: 13px; }
-.streak-badge { background: linear-gradient(135deg,#f5c67c22,#f5c67c11); border: 1px solid #f5c67c44; border-radius: 20px; padding: 5px 11px; font-size: 11px; white-space: nowrap; display: none; align-items: center; gap: 4px; color: var(--gold); font-weight: 600; }
-
-/* ─── CONTENT ─── */
-.content { padding: 14px 16px 0; }
-
-/* ─── MODE TABS ─── */
-.mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-.mode-tab { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text3); font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
-.mode-tab.active { background: var(--accent); border-color: var(--accent); color: white; box-shadow: 0 0 16px rgba(124,106,245,0.35); }
-
-/* ─── SENTENCE CARD ─── */
-.sentence-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 10px; position: relative; transition: all 0.3s; }
-.sentence-card.correct { border-color: var(--green); background: rgba(74,222,128,0.05); box-shadow: 0 0 16px rgba(74,222,128,0.1); }
-.sentence-card.wrong { border-color: var(--red); animation: shake 0.4s ease; }
-@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-
-.sentence-index { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-weight: 600; }
-.sentence-es { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
-.sentence-vocab { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
-.vocab-tag { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.2); color: var(--accent3); font-size: 10px; padding: 2px 8px; border-radius: 99px; cursor: pointer; transition: all 0.2s; }
-.vocab-tag:hover { background: rgba(167,139,250,0.25); }
-
-.ts-btn { display: inline-flex; align-items: center; gap: 3px; background: rgba(124,106,245,0.1); border: 1px solid rgba(124,106,245,0.2); border-radius: 6px; color: var(--accent3); font-size: 10px; font-weight: 600; padding: 3px 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; margin-bottom: 10px; }
-.ts-btn:hover { background: rgba(124,106,245,0.25); border-color: var(--accent); }
-
-.translate-label { font-size: 10px; color: var(--text3); margin-bottom: 5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
-.translate-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s; resize: none; }
-.translate-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,106,245,0.15); }
-.translate-input::placeholder { color: var(--text3); }
-
-.btn-row { display: flex; gap: 8px; margin-top: 10px; }
-.btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-.btn-check { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(124,106,245,0.3); }
-.btn-check:hover { background: var(--accent2); transform: translateY(-1px); }
-.btn-check:active { transform: translateY(0); }
-.btn-skip { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); max-width: 70px; }
-.btn-audio { background: var(--surface2); color: var(--gold); border: 1px solid rgba(245,198,124,0.2); max-width: 44px; font-size: 15px; }
-
-.answer-reveal { display: none; margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--surface2); border-left: 3px solid var(--accent); }
-.answer-reveal.show { display: block; }
-.answer-correct-text { color: var(--accent3); font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-.answer-notes { color: var(--text2); font-size: 12px; line-height: 1.6; }
-.answer-notes strong { color: var(--gold); }
-
-/* YouGlish 語塊標籤 */
-.yg-chunk {
-  display: inline-block;
-  background: rgba(245,198,124,0.12);
-  border: 1px solid rgba(245,198,124,0.3);
-  border-radius: 6px;
-  color: var(--gold);
-  font-weight: 700;
-  font-size: 12px;
-  padding: 1px 7px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-.yg-chunk:hover {
-  background: rgba(245,198,124,0.25);
-  border-color: var(--gold);
-  transform: translateY(-1px);
-}
-.yg-chunk::after {
-  content: ' 🔍';
-  font-size: 10px;
-  opacity: 0.7;
-}
-
-.result-badge { display: none; position: absolute; top: 14px; right: 14px; font-size: 18px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-.result-badge.show { display: block; }
-@keyframes popIn { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
-
-/* ─── SECTION DIVIDER ─── */
-.section-divider { text-align: center; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); margin: 4px 0 10px; display: flex; align-items: center; gap: 8px; }
-.section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
-
-/* ─── YT BAR ─── */
-.yt-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0d1f; border-top: 1px solid var(--border); z-index: 200; transition: all 0.3s ease; }
-.yt-bar-mini { display: flex; align-items: center; gap: 10px; padding: 8px 14px 14px; cursor: pointer; }
-.yt-thumb-mini { width: 48px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #000; }
-.yt-thumb-mini img { width: 100%; height: 100%; object-fit: cover; }
-.yt-info { flex: 1; min-width: 0; }
-.yt-title { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.yt-artist { font-size: 10px; color: var(--text3); margin-top: 1px; }
-.yt-expand-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--accent3); font-size: 11px; font-weight: 700; padding: 7px 11px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.yt-embed-full { display: none; width: 100%; aspect-ratio: 16/9; }
-.yt-embed-full iframe { width: 100%; height: 100%; display: block; border: none; }
-.yt-embed-full > div { width: 100%; height: 100%; }
-.yt-embed-full.show { display: block; }
-.yt-close-bar { text-align: center; padding: 6px; font-size: 11px; color: var(--text3); cursor: pointer; background: #0f0d1f; }
-.yt-close-bar:hover { color: var(--accent3); }
-
-/* ─── VOCAB POPUP ─── */
-.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; }
-.overlay.show { display: block; }
-.vocab-popup { display: none; position: fixed; bottom: 80px; left: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--accent); border-radius: 14px; padding: 14px; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: slideUp 0.25s ease; }
-.vocab-popup.show { display: block; }
-@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-.vocab-popup-word { font-family: 'Space Grotesk',sans-serif; font-size: 17px; font-weight: 700; color: var(--accent3); margin-bottom: 4px; }
-.vocab-popup-def { color: var(--text2); font-size: 13px; line-height: 1.5; }
-.vocab-popup-ex { margin-top: 8px; padding: 7px; background: var(--surface3); border-radius: 8px; font-size: 11px; color: var(--text3); font-style: italic; }
-.vocab-close { position: absolute; top: 10px; right: 12px; color: var(--text3); font-size: 17px; cursor: pointer; }
-
-/* ─── XP FLOAT ─── */
-.xp-float { position: fixed; font-size: 17px; font-weight: 800; color: var(--gold); pointer-events: none; z-index: 300; animation: floatUp 1.2s ease forwards; text-shadow: 0 0 20px rgba(245,198,124,0.5); }
-@keyframes floatUp { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-70px) scale(1.3)} }
-
-/* ─── WORD UNLOCK ─── */
-.word-unlock { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0); background: linear-gradient(135deg,#1e1a35,#252040); border: 1px solid var(--accent); border-radius: 18px; padding: 20px 28px; text-align: center; z-index: 400; box-shadow: 0 20px 60px rgba(0,0,0,0.7),0 0 40px rgba(124,106,245,0.2); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s; opacity: 0; pointer-events: none; }
-.word-unlock.show { transform: translate(-50%,-50%) scale(1); opacity: 1; }
-.word-unlock-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 5px; }
-.word-unlock-word { font-family: 'Space Grotesk',sans-serif; font-size: 24px; font-weight: 800; color: var(--gold); margin-bottom: 3px; }
-.word-unlock-def { font-size: 13px; color: var(--text2); }
-
-/* ─── COMPLETE ─── */
-.complete-screen { display: none; text-align: center; padding: 36px 20px; }
-.complete-screen.show { display: block; }
-.complete-emoji { font-size: 56px; margin-bottom: 14px; animation: bounce 1s ease infinite alternate; }
-@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-10px)} }
-.complete-title { font-family: 'Space Grotesk',sans-serif; font-size: 24px; font-weight: 800; background: linear-gradient(135deg,var(--accent2),var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
-.complete-stats { display: flex; justify-content: center; gap: 24px; margin: 18px 0; }
-.complete-stat-num { font-size: 32px; font-weight: 800; color: var(--gold); line-height: 1; }
-.complete-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
-.btn-restart { background: linear-gradient(135deg,var(--accent),#9b5cf8); color: white; border: none; padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 14px; box-shadow: 0 8px 24px rgba(124,106,245,0.35); transition: all 0.2s; }
-.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(124,106,245,0.5); }
-.btn-next-song { background: var(--surface2); color: var(--accent3); border: 1px solid var(--border); padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; display: block; width: fit-content; margin-left: auto; margin-right: auto; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+:root{--bg:#0d0b1a;--s1:#161229;--s2:#1e1a35;--s3:#252040;--ac:#7c6af5;--ac2:#a78bfa;--ac3:#c4b5fd;--gold:#f5c67c;--green:#4ade80;--red:#f87171;--t1:#e8e4ff;--t2:#a89fd4;--t3:#6b64a0;--bd:#2a2350}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:Inter,sans-serif;min-height:100vh;padding-bottom:90px}
+/* HEADER */
+.hdr{background:linear-gradient(180deg,#1a1530,var(--bg));padding:22px 16px 14px;text-align:center;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.hdr-art{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ac2);margin-bottom:4px;font-weight:600}
+.hdr-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.hdr-sub{font-size:11px;color:var(--t3);margin-bottom:12px}
+/* PROGRESS */
+.prog{padding:0 16px;margin-bottom:4px}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:6px}
+.prog-bg{background:var(--s2);border-radius:99px;height:7px;overflow:hidden}
+.prog-fill{background:linear-gradient(90deg,var(--ac),var(--ac2));height:100%;border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 10px rgba(124,106,245,.5)}
+/* STATS */
+.stats{display:flex;gap:8px;padding:10px 16px 0;overflow-x:auto;scrollbar-width:none}
+.stats::-webkit-scrollbar{display:none}
+.chip{background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:5px 11px;font-size:11px;white-space:nowrap;display:flex;align-items:center;gap:4px;color:var(--t2)}
+.chip.hi{border-color:var(--ac);color:var(--ac3);background:rgba(124,106,245,.1)}
+.chip .n{font-weight:700;color:var(--gold);font-size:13px}
+.streak-b{background:linear-gradient(135deg,#f5c67c22,#f5c67c11);border:1px solid #f5c67c44;border-radius:20px;padding:5px 11px;font-size:11px;white-space:nowrap;display:none;align-items:center;gap:4px;color:var(--gold);font-weight:600}
+/* PICKER */
+.picker-wrap{margin-top:14px;position:relative}
+.picker-wrap::after{content:"›";position:absolute;right:0;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--ac2);background:linear-gradient(to right,transparent,var(--bg) 60%);pointer-events:none}
+.picker{padding:2px 16px 4px;overflow-x:auto;display:flex;gap:10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.picker::-webkit-scrollbar{display:none}
+.picker-hint{text-align:center;font-size:10px;color:var(--t3);padding:4px 0 0}
+.sc{flex-shrink:0;background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:9px 13px;cursor:pointer;transition:all .2s;text-align:center;min-width:120px}
+.sc.active{border-color:var(--ac);background:rgba(124,106,245,.12);box-shadow:0 0 16px rgba(124,106,245,.2)}
+.sc-title{font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.sc-artist{font-size:10px;color:var(--t3);margin-top:2px}
+.sc-done{font-size:10px;color:var(--green);margin-top:2px}
+/* CONTENT */
+.content{padding:12px 16px 0}
+/* MODE TABS */
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--bd);background:var(--s1);color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+.tab.active{background:var(--ac);border-color:var(--ac);color:white;box-shadow:0 0 16px rgba(124,106,245,.35)}
+/* SECTION DIV */
+.sdiv{text-align:center;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin:4px 0 10px;display:flex;align-items:center;gap:8px}
+.sdiv::before,.sdiv::after{content:"";flex:1;height:1px;background:var(--bd)}
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:10px;position:relative;transition:all .3s}
+.card.ok{border-color:var(--green);background:rgba(74,222,128,.05);box-shadow:0 0 16px rgba(74,222,128,.1)}
+.card.err{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.ci{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:6px;font-weight:600}
+.ces{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--t1);line-height:1.4;margin-bottom:6px}
+.vtags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.vtag{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.2);color:var(--ac3);font-size:10px;padding:2px 8px;border-radius:99px;cursor:pointer;transition:all .2s}
+.vtag:hover{background:rgba(167,139,250,.25)}
+.ts-btn{display:inline-flex;align-items:center;gap:3px;background:rgba(124,106,245,.1);border:1px solid rgba(124,106,245,.2);border-radius:6px;color:var(--ac3);font-size:10px;font-weight:600;padding:3px 8px;cursor:pointer;text-decoration:none;transition:all .2s;margin-bottom:10px}
+.ts-btn:hover{background:rgba(124,106,245,.25);border-color:var(--ac)}
+.tlabel{font-size:10px;color:var(--t3);margin-bottom:5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.tinput{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;color:var(--t1);font-size:14px;font-family:Inter,sans-serif;outline:none;transition:all .2s;resize:none}
+.tinput:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(124,106,245,.15)}
+.tinput::placeholder{color:var(--t3)}
+.brow{display:flex;gap:8px;margin-top:10px}
+.btn{flex:1;padding:10px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}
+.btn-c{background:var(--ac);color:white;box-shadow:0 4px 15px rgba(124,106,245,.3)}
+.btn-c:hover{background:var(--ac2);transform:translateY(-1px)}
+.btn-a{background:var(--s2);color:var(--gold);border:1px solid rgba(245,198,124,.2);max-width:44px;font-size:15px}
+.btn-s{background:var(--s2);color:var(--t2);border:1px solid var(--bd);max-width:70px}
+.reveal{display:none;margin-top:10px;padding:10px;border-radius:10px;background:var(--s2);border-left:3px solid var(--ac)}
+.reveal.show{display:block}
+.rev-label{color:var(--ac3);font-size:13px;font-weight:600;margin-bottom:4px}
+.notes{color:var(--t2);font-size:12px;line-height:1.6}
+.notes .yg{display:inline-block;background:rgba(245,198,124,.12);border:1px solid rgba(245,198,124,.3);border-radius:6px;color:var(--gold);font-weight:700;font-size:11px;padding:1px 6px;cursor:pointer;text-decoration:none;transition:all .2s}
+.notes .yg:hover{background:rgba(245,198,124,.25)}
+.rbadge{display:none;position:absolute;top:14px;right:14px;font-size:18px;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+.rbadge.show{display:block}
+@keyframes popIn{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+/* VOCAB POPUP */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150}
+.overlay.show{display:block}
+.vpop{display:none;position:fixed;bottom:80px;left:16px;right:16px;background:var(--s2);border:1px solid var(--ac);border-radius:14px;padding:14px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.vpop.show{display:block}
+.vp-w{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--ac3);margin-bottom:4px}
+.vp-d{color:var(--t2);font-size:13px;line-height:1.5}
+.vp-e{margin-top:8px;padding:7px;background:var(--s3);border-radius:8px;font-size:11px;color:var(--t3);font-style:italic}
+.vp-x{position:absolute;top:10px;right:12px;color:var(--t3);font-size:17px;cursor:pointer}
+/* XP FLOAT */
+.xpf{position:fixed;font-size:17px;font-weight:800;color:var(--gold);pointer-events:none;z-index:300;animation:floatUp 1.2s ease forwards;text-shadow:0 0 20px rgba(245,198,124,.5)}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(1.3)}}
+/* WORD UNLOCK */
+.wunlock{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#1e1a35,#252040);border:1px solid var(--ac);border-radius:18px;padding:20px 28px;text-align:center;z-index:400;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 40px rgba(124,106,245,.2);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none}
+.wunlock.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+.wu-l{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ac2);margin-bottom:5px}
+.wu-w{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:var(--gold);margin-bottom:3px}
+.wu-d{font-size:13px;color:var(--t2)}
+/* COMPLETE */
+.cscreen{display:none;text-align:center;padding:36px 20px}
+.cscreen.show{display:block}
+.ce{font-size:56px;margin-bottom:14px;animation:bounce 1s ease infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+.ct{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--ac2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.cstats{display:flex;justify-content:center;gap:24px;margin:18px 0}
+.csn{font-size:32px;font-weight:800;color:var(--gold);line-height:1}
+.csl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+.btn-r{background:linear-gradient(135deg,var(--ac),#9b5cf8);color:white;border:none;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px;box-shadow:0 8px 24px rgba(124,106,245,.35);transition:all .2s;display:block;margin:14px auto 0}
+.btn-r:hover{transform:translateY(-2px)}
+.btn-nx{background:var(--s2);color:var(--ac3);border:1px solid var(--bd);padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;transition:all .2s;display:none;margin:10px auto 0}
+/* YT BAR */
+.ytbar{position:fixed;bottom:0;left:0;right:0;background:#0f0d1f;border-top:1px solid var(--bd);z-index:200;transition:all .3s}
+.ytmini{display:flex;align-items:center;gap:10px;padding:8px 14px 14px;cursor:pointer}
+.ytthumb{width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0}
+.ytthumb img{width:100%;height:100%;object-fit:cover}
+.ytinfo{flex:1;min-width:0}
+.ytt{font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yta{font-size:10px;color:var(--t3);margin-top:1px}
+.ytexpbtn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--ac3);font-size:11px;font-weight:700;padding:7px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ytfull{display:none;width:100%;aspect-ratio:16/9}
+.ytfull iframe{width:100%;height:100%;display:block;border:none}
+.ytfull.show{display:block}
+.ytclose{text-align:center;padding:6px;font-size:11px;color:var(--t3);cursor:pointer;background:#0f0d1f;display:none}
+.ytclose:hover{color:var(--ac3)}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-artist" id="h-artist">🎵 載入中...</div>
-  <div class="header-title" id="h-title">追星學西語</div>
-  <div class="header-sub" id="h-sub"></div>
-  <div class="progress-section">
-    <div class="progress-meta">
-      <span id="progress-text">第 1 句</span>
-      <span id="progress-pct">0%</span>
-    </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-    </div>
+<div class="hdr">
+  <div class="hdr-art" id="h-art">🎵 載入中...</div>
+  <div class="hdr-title" id="h-title">追星學西語</div>
+  <div class="hdr-sub" id="h-sub"></div>
+  <div class="prog">
+    <div class="prog-meta"><span id="prog-txt">第 1 句</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
   </div>
 </div>
 
-<div class="stats-row">
-  <div class="stat-chip hi">🎯 正確 <span class="num" id="stat-correct">0</span></div>
-  <div class="stat-chip">📚 單字 <span class="num" id="stat-words">0</span></div>
-  <div class="stat-chip">⚡ 連勝 <span class="num" id="stat-streak">0</span></div>
-  <div class="streak-badge" id="streak-badge">🔥 <span id="streak-num">0</span> 連勝！</div>
+<div class="stats">
+  <div class="chip hi">🎯 正確 <span class="n" id="sc">0</span></div>
+  <div class="chip">📚 單字 <span class="n" id="sw">0</span></div>
+  <div class="chip">⚡ 連勝 <span class="n" id="ss">0</span></div>
+  <div class="streak-b" id="streak-b">🔥 <span id="sn">0</span> 連勝！</div>
 </div>
 
-<!-- Song Picker -->
-<div class="song-picker-wrap">
-  <div class="song-picker" id="song-picker"></div>
-  <div class="song-picker-hint">← 左右滑動查看全部 <span id="song-count"></span> 首歌 →</div>
+<div class="picker-wrap">
+  <div class="picker" id="picker"></div>
+  <div class="picker-hint" id="picker-hint">← 左右滑動 →</div>
 </div>
 
 <div class="content">
-  <div style="margin-top:14px"></div>
-  <div class="mode-tabs">
-    <div class="mode-tab active" onclick="setMode('translate')" id="tab-translate">✏️ 翻譯模式</div>
-    <div class="mode-tab" onclick="setMode('listen')" id="tab-listen">👀 看答案模式</div>
+  <div style="margin-top:12px"></div>
+  <div class="tabs">
+    <div class="tab active" id="tab-tr" onclick="setMode('tr')">✏️ 翻譯模式</div>
+    <div class="tab" id="tab-li" onclick="setMode('li')">👀 看答案模式</div>
   </div>
 </div>
 
-<div id="cards-container" style="padding:0 16px;"></div>
-<div class="complete-screen" id="complete-screen">
-  <div class="complete-emoji">🏆</div>
-  <div class="complete-title" id="complete-title">這首歌學完了！</div>
-  <div style="color:var(--text2);font-size:13px;" id="complete-sub"></div>
-  <div class="complete-stats">
-    <div class="complete-stat"><div class="complete-stat-num" id="final-correct">0</div><div class="complete-stat-label">句答對</div></div>
-    <div class="complete-stat"><div class="complete-stat-num" id="final-words">0</div><div class="complete-stat-label">新單字</div></div>
-    <div class="complete-stat"><div class="complete-stat-num" id="final-xp">0</div><div class="complete-stat-label">XP</div></div>
+<div id="cards"></div>
+
+<div class="cscreen" id="cscreen">
+  <div class="ce">🏆</div>
+  <div class="ct" id="ct">學完了！</div>
+  <div style="color:var(--t2);font-size:13px" id="cs2"></div>
+  <div class="cstats">
+    <div><div class="csn" id="fc">0</div><div class="csl">句答對</div></div>
+    <div><div class="csn" id="fw">0</div><div class="csl">新單字</div></div>
+    <div><div class="csn" id="fx">0</div><div class="csl">XP</div></div>
   </div>
-  <button class="btn-restart" onclick="restart()">🔄 再練一次</button>
-  <button class="btn-next-song" onclick="nextSong()" id="btn-next">下一首 →</button>
+  <button class="btn-r" onclick="restart()">🔄 再練一次</button>
+  <button class="btn-nx" id="btn-nx" onclick="nextSong()">下一首 →</button>
 </div>
 
-<!-- YT Bar -->
-<div class="yt-bar" id="yt-bar">
-  <div class="yt-embed-full" id="yt-embed-full">
+<div class="overlay" id="overlay" onclick="closeV()"></div>
+<div class="vpop" id="vpop">
+  <div class="vp-x" onclick="closeV()">✕</div>
+  <div class="vp-w" id="vw"></div>
+  <div class="vp-d" id="vd"></div>
+  <div class="vp-e" id="ve"></div>
+</div>
+
+<div class="wunlock" id="wu">
+  <div class="wu-l">✨ 新單字解鎖</div>
+  <div class="wu-w" id="wuw"></div>
+  <div class="wu-d" id="wud"></div>
+</div>
+
+<div class="ytbar" id="ytbar">
+  <div class="ytfull" id="ytfull">
     <div id="yt-player"></div>
   </div>
-  <div class="yt-close-bar" id="yt-close-bar" onclick="togglePlayer()" style="display:none">▼ 收起播放器</div>
-  <div class="yt-bar-mini" id="yt-bar-mini" onclick="togglePlayer()">
-    <div class="yt-thumb-mini">
-      <img id="yt-thumb-img" src="" alt="">
+  <div class="ytclose" id="ytclose" onclick="toggleYT()">▼ 收起播放器</div>
+  <div class="ytmini" id="ytmini" onclick="toggleYT()">
+    <div class="ytthumb"><img id="yt-img" src="" alt=""></div>
+    <div class="ytinfo">
+      <div class="ytt" id="yt-t">-</div>
+      <div class="yta" id="yt-a">-</div>
     </div>
-    <div class="yt-info">
-      <div class="yt-title" id="yt-title-bar">-</div>
-      <div class="yt-artist" id="yt-artist-bar">-</div>
-    </div>
-    <div class="yt-expand-btn">▶ 展開播放</div>
+    <div class="ytexpbtn">▶ 展開播放</div>
   </div>
-</div>
-
-<!-- Vocab Popup -->
-<div class="overlay" id="overlay" onclick="closeVocab()"></div>
-<div class="vocab-popup" id="vocab-popup">
-  <div class="vocab-close" onclick="closeVocab()">✕</div>
-  <div class="vocab-popup-word" id="vp-word"></div>
-  <div class="vocab-popup-def" id="vp-def"></div>
-  <div class="vocab-popup-ex" id="vp-ex"></div>
-</div>
-
-<div class="word-unlock" id="word-unlock">
-  <div class="word-unlock-label">✨ 新單字解鎖</div>
-  <div class="word-unlock-word" id="wu-word"></div>
-  <div class="word-unlock-def" id="wu-def"></div>
 </div>
 
 <script>
@@ -516,390 +366,313 @@ const SONGS = [
     ]
   }
 ];
-var currentSongIdx = 0;
-var currentMode = "translate";
-var checkedCards = new Set();
-var unlockedWords = new Set();
-var correctCount = 0;
-var wordsUnlocked = 0;
-var streakCount = 0;
-var totalXP = 0;
 
-function getSong() { return SONGS[currentSongIdx]; }
+var idx = 0, mode = "tr";
+var checked = new Set(), unlocked = new Set();
+var correct = 0, words = 0, streak = 0, xp = 0;
+var ytReady = false, ytPlayer = null, pendingId = null;
 
-function initSong(idx) {
-  currentSongIdx = idx;
-  checkedCards.clear();
-  unlockedWords.clear();
-  correctCount = 0; wordsUnlocked = 0; streakCount = 0; totalXP = 0;
-  document.getElementById("complete-screen").classList.remove("show");
-  document.getElementById("cards-container").style.display = "";
-  document.getElementById("streak-badge").style.display = "none";
-  updateHeader();
-  updateYTBar();
-  updateStats();
-  renderPicker();
-  renderCards();
+function song() { return SONGS[idx]; }
+
+function init(i) {
+  idx = i;
+  checked.clear(); unlocked.clear();
+  correct = 0; words = 0; streak = 0; xp = 0;
+  document.getElementById("cscreen").classList.remove("show");
+  document.getElementById("cards").style.display = "";
+  document.getElementById("streak-b").style.display = "none";
+  updateHdr(); updateYT(); updateStats(); renderPicker(); renderCards();
   window.scrollTo(0,0);
 }
 
-function updateHeader() {
-  var s = getSong();
-  document.getElementById("h-artist").textContent = "🎵 " + s.artist + " · 西語學習";
+function updateHdr() {
+  var s = song();
+  document.getElementById("h-art").textContent = "🎵 " + s.artist + " · 西語學習";
   document.getElementById("h-title").textContent = s.title;
   document.getElementById("h-sub").textContent = s.zh;
 }
 
-function updateYTBar() {
-  var s = getSong();
-  var url = "https://www.youtube.com/watch?v=" + s.ytId;
-  document.getElementById("yt-thumb-link").href = url;
-  document.getElementById("yt-thumb-img").src = "https://img.youtube.com/vi/" + s.ytId + "/mqdefault.jpg";
-  document.getElementById("yt-title-bar").textContent = s.title;
-  document.getElementById("yt-artist-bar").textContent = s.artist;
-  document.getElementById("yt-play-btn").href = url;
+function updateYT() {
+  var s = song();
+  document.getElementById("yt-img").src = "https://img.youtube.com/vi/" + s.ytId + "/mqdefault.jpg";
+  document.getElementById("yt-t").textContent = s.title;
+  document.getElementById("yt-a").textContent = s.artist;
+  if (ytReady && ytPlayer) {
+    ytPlayer.loadVideoById(s.ytId);
+    ytPlayer.pauseVideo();
+  } else { pendingId = s.ytId; }
+  document.getElementById("ytfull").classList.remove("show");
+  document.getElementById("ytmini").style.display = "flex";
+  document.getElementById("ytclose").style.display = "none";
 }
 
-function renderPicker() {
-  var picker = document.getElementById("song-picker");
-  picker.innerHTML = "";
-  SONGS.forEach(function(s, i) {
-    var chip = document.createElement("div");
-    chip.className = "song-chip" + (i === currentSongIdx ? " active" : "");
-    var title = document.createElement("div");
-    title.className = "song-chip-title";
-    title.textContent = s.title;
-    var artist = document.createElement("div");
-    artist.className = "song-chip-artist";
-    artist.textContent = s.artist;
-    chip.appendChild(title);
-    chip.appendChild(artist);
-    if (i === currentSongIdx && checkedCards.size > 0) {
-      var done = document.createElement("div");
-      done.className = "song-chip-done";
-      done.textContent = checkedCards.size + "/" + s.sentences.length + " 句";
-      chip.appendChild(done);
-    }
-    chip.onclick = function() { initSong(i); };
-    picker.appendChild(chip);
+function toggleYT() {
+  var f = document.getElementById("ytfull");
+  var m = document.getElementById("ytmini");
+  var c = document.getElementById("ytclose");
+  if (f.classList.contains("show")) {
+    f.classList.remove("show"); m.style.display = "flex"; c.style.display = "none";
+  } else {
+    f.classList.add("show"); m.style.display = "none"; c.style.display = "block";
+  }
+}
+
+function seekTo(sec) {
+  var f = document.getElementById("ytfull");
+  if (!f.classList.contains("show")) toggleYT();
+  if (ytReady && ytPlayer) { ytPlayer.seekTo(sec, true); ytPlayer.playVideo(); }
+}
+
+var ytTag = document.createElement("script");
+ytTag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(ytTag);
+
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player("yt-player", {
+    height: "100%", width: "100%",
+    videoId: pendingId || SONGS[0].ytId,
+    playerVars: { rel: 0, modestbranding: 1 },
+    events: { onReady: function() { ytReady = true; } }
   });
 }
 
-function setMode(mode) {
-  currentMode = mode;
-  document.getElementById("tab-translate").classList.toggle("active", mode === "translate");
-  document.getElementById("tab-listen").classList.toggle("active", mode === "listen");
+function renderPicker() {
+  var p = document.getElementById("picker");
+  p.innerHTML = "";
+  SONGS.forEach(function(s, i) {
+    var d = document.createElement("div");
+    d.className = "sc" + (i === idx ? " active" : "");
+    var t = document.createElement("div"); t.className = "sc-title"; t.textContent = s.title;
+    var a = document.createElement("div"); a.className = "sc-artist"; a.textContent = s.artist;
+    d.appendChild(t); d.appendChild(a);
+    if (i === idx && checked.size > 0) {
+      var dn = document.createElement("div"); dn.className = "sc-done";
+      dn.textContent = checked.size + "/" + s.sentences.length + " 句";
+      d.appendChild(dn);
+    }
+    d.onclick = function() { init(i); };
+    p.appendChild(d);
+  });
+  document.getElementById("picker-hint").textContent = "← 左右滑動查看全部 " + SONGS.length + " 首歌 →";
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById("tab-tr").classList.toggle("active", m === "tr");
+  document.getElementById("tab-li").classList.toggle("active", m === "li");
   renderCards();
 }
 
 function renderNotes(notes) {
-  return notes.replace(/\[([^\]]+)\]/g, function(match, chunk) {
-    var word = chunk.trim();
-    var url = "https://youglish.com/pronounce/" + encodeURIComponent(word) + "/spanish";
-    var a = document.createElement("a");
-    a.className = "yg-chunk";
-    a.href = url;
-    a.target = "_blank";
-    a.textContent = chunk + " 🔍";
-    return a.outerHTML;
+  return notes.replace(/\[([^\]]+)\]/g, function(m, chunk) {
+    var url = "https://youglish.com/pronounce/" + encodeURIComponent(chunk.trim()) + "/spanish";
+    return "<a class=\"yg\" href=\"" + url + "\" target=\"_blank\">" + chunk + " 🔍</a>";
   });
 }
 
 function renderCards() {
-  var s = getSong();
-  var container = document.getElementById("cards-container");
-  container.innerHTML = "";
+  var s = song();
+  var c = document.getElementById("cards");
+  c.innerHTML = "";
+  c.style.padding = "0 16px";
 
   s.sentences.forEach(function(sent, i) {
-    if (s.sections[i]) {
-      var div = document.createElement("div");
-      div.className = "section-divider";
-      div.textContent = s.sections[i];
-      container.appendChild(div);
+    if (s.sections && s.sections[i]) {
+      var sd = document.createElement("div");
+      sd.className = "sdiv"; sd.textContent = s.sections[i];
+      c.appendChild(sd);
     }
 
-    var isChecked = checkedCards.has(i);
+    var isOk = checked.has(i);
     var card = document.createElement("div");
-    card.className = "sentence-card" + (isChecked ? " correct" : "");
+    card.className = "card" + (isOk ? " ok" : "");
     card.id = "card-" + i;
 
-    var tsUrl = "https://www.youtube.com/watch?v=" + s.ytId + "&t=" + sent.ts + "s";
-    var tsMins = Math.floor(sent.ts/60);
-    var tsSecs = sent.ts % 60;
-    var tsLabel = tsMins + ":" + String(tsSecs).padStart(2,"0");
-
-    // Badge
     var badge = document.createElement("div");
-    badge.className = "result-badge" + (isChecked ? " show" : "");
-    badge.id = "badge-" + i;
-    badge.textContent = isChecked ? "✅" : "";
+    badge.className = "rbadge" + (isOk ? " show" : "");
+    badge.id = "b-" + i;
+    badge.textContent = isOk ? "✅" : "";
     card.appendChild(badge);
 
-    // Index
-    var idx = document.createElement("div");
-    idx.className = "sentence-index";
-    idx.textContent = "第 " + (i+1) + " 句 / " + s.sentences.length;
-    card.appendChild(idx);
+    var ci = document.createElement("div");
+    ci.className = "ci";
+    ci.textContent = "第 " + (i+1) + " 句 / " + s.sentences.length;
+    card.appendChild(ci);
 
-    // Spanish
-    var esDiv = document.createElement("div");
-    esDiv.className = "sentence-es";
-    esDiv.textContent = sent.es;
-    card.appendChild(esDiv);
+    var es = document.createElement("div");
+    es.className = "ces"; es.textContent = sent.es;
+    card.appendChild(es);
 
-    // Vocab tags
-    if (sent.vocab.length > 0) {
-      var vtDiv = document.createElement("div");
-      vtDiv.className = "sentence-vocab";
+    if (sent.vocab && sent.vocab.length > 0) {
+      var vt = document.createElement("div"); vt.className = "vtags";
       sent.vocab.forEach(function(v) {
-        var tag = document.createElement("span");
-        tag.className = "vocab-tag";
+        var tag = document.createElement("span"); tag.className = "vtag";
         tag.textContent = v.word.split(" ")[0];
-        tag.setAttribute("data-word", v.word);
-        tag.setAttribute("data-def", v.def);
-        tag.setAttribute("data-ex", v.ex);
-        tag.onclick = function() { handleVocabTag(this); };
-        vtDiv.appendChild(tag);
+        tag.setAttribute("data-w", v.word);
+        tag.setAttribute("data-d", v.def);
+        tag.setAttribute("data-e", v.ex);
+        tag.onclick = function() { showV(this.getAttribute("data-w"), this.getAttribute("data-d"), this.getAttribute("data-e")); };
+        vt.appendChild(tag);
       });
-      card.appendChild(vtDiv);
+      card.appendChild(vt);
     }
 
-    // Timestamp
-    var tsLink = document.createElement("a");
-    tsLink.className = "ts-btn";
-    tsLink.href = tsUrl;
-    tsLink.target = "_blank";
-    tsLink.textContent = "▶ " + tsLabel + " 聽這句";
-    card.appendChild(tsLink);
+    var tsb = document.createElement("button"); tsb.className = "ts-btn";
+    var tm = Math.floor(sent.ts/60), ts2 = sent.ts%60;
+    tsb.textContent = "▶ " + tm + ":" + String(ts2).padStart(2,"0") + " 聽這句";
+    (function(sec){ tsb.onclick = function(){ seekTo(sec); }; })(sent.ts);
+    card.appendChild(tsb);
 
-    if (currentMode === "translate") {
-      var tlabel = document.createElement("div");
-      tlabel.className = "translate-label";
-      tlabel.textContent = "你的翻譯：";
-      card.appendChild(tlabel);
-
-      var ta = document.createElement("textarea");
-      ta.className = "translate-input";
-      ta.id = "input-" + i;
-      ta.rows = 2;
-      ta.placeholder = "用中文或英文寫下你的理解…";
-      if (isChecked) { ta.value = sent.zh; ta.disabled = true; }
+    if (mode === "tr") {
+      var tl = document.createElement("div"); tl.className = "tlabel"; tl.textContent = "你的翻譯：";
+      card.appendChild(tl);
+      var ta = document.createElement("textarea"); ta.className = "tinput"; ta.id = "inp-"+i;
+      ta.rows = 2; ta.placeholder = "用中文或英文寫下你的理解…";
+      if (isOk) { ta.value = sent.zh; ta.disabled = true; }
       card.appendChild(ta);
 
-      var btnRow = document.createElement("div");
-      btnRow.className = "btn-row";
+      var br = document.createElement("div"); br.className = "brow";
+      var bc = document.createElement("button"); bc.className = "btn btn-c"; bc.textContent = "✓ 核對答案";
+      if (isOk) { bc.disabled = true; bc.style.opacity = "0.5"; }
+      (function(ii){ bc.onclick = function(){ check(ii); }; })(i);
+      br.appendChild(bc);
+      var ba = document.createElement("button"); ba.className = "btn btn-a"; ba.textContent = "🔊";
+      (function(txt){ ba.onclick = function(){ speak(txt); }; })(sent.es);
+      br.appendChild(ba);
+      var bs = document.createElement("button"); bs.className = "btn btn-s"; bs.textContent = "跳過";
+      if (isOk) { bs.disabled = true; bs.style.opacity = "0.5"; }
+      (function(ii){ bs.onclick = function(){ skip(ii); }; })(i);
+      br.appendChild(bs);
+      card.appendChild(br);
 
-      var btnCheck = document.createElement("button");
-      btnCheck.className = "btn btn-check";
-      btnCheck.textContent = "✓ 核對答案";
-      if (isChecked) { btnCheck.disabled = true; btnCheck.style.opacity = "0.5"; }
-      (function(idx){ btnCheck.onclick = function() { checkAnswer(idx); }; })(i);
-      btnRow.appendChild(btnCheck);
-
-      var btnAudio = document.createElement("button");
-      btnAudio.className = "btn btn-audio";
-      btnAudio.textContent = "🔊";
-      (function(txt){ btnAudio.onclick = function() { speak(txt); }; })(sent.es);
-      btnRow.appendChild(btnAudio);
-
-      var btnSkip = document.createElement("button");
-      btnSkip.className = "btn btn-skip";
-      btnSkip.textContent = "跳過";
-      if (isChecked) { btnSkip.disabled = true; btnSkip.style.opacity = "0.5"; }
-      (function(idx){ btnSkip.onclick = function() { skipCard(idx); }; })(i);
-      btnRow.appendChild(btnSkip);
-
-      card.appendChild(btnRow);
-
-      var reveal = document.createElement("div");
-      reveal.className = "answer-reveal" + (isChecked ? " show" : "");
-      reveal.id = "reveal-" + i;
-
-      var revLabel = document.createElement("div");
-      revLabel.className = "answer-correct-text";
-      revLabel.textContent = "✦ 參考翻譯";
-      reveal.appendChild(revLabel);
-
-      var zhDiv = document.createElement("div");
-      zhDiv.style.cssText = "font-size:15px;color:var(--accent3);font-weight:600;margin-bottom:5px;";
-      zhDiv.textContent = sent.zh;
-      reveal.appendChild(zhDiv);
-
-      var notesDiv = document.createElement("div");
-      notesDiv.className = "answer-notes";
-      notesDiv.innerHTML = renderNotes(sent.notes);
-      reveal.appendChild(notesDiv);
-
-      card.appendChild(reveal);
-
+      var rv = document.createElement("div"); rv.className = "reveal" + (isOk ? " show" : ""); rv.id = "rv-"+i;
+      var rl = document.createElement("div"); rl.className = "rev-label"; rl.textContent = "✦ 參考翻譯";
+      rv.appendChild(rl);
+      var rz = document.createElement("div"); rz.style.cssText = "font-size:15px;color:var(--ac3);font-weight:600;margin-bottom:5px;";
+      rz.textContent = sent.zh; rv.appendChild(rz);
+      var rn = document.createElement("div"); rn.className = "notes"; rn.innerHTML = renderNotes(sent.notes);
+      rv.appendChild(rn);
+      card.appendChild(rv);
     } else {
-      var zhDiv2 = document.createElement("div");
-      zhDiv2.style.cssText = "color:var(--text2);font-size:14px;margin:6px 0 8px;";
-      zhDiv2.textContent = sent.zh;
-      card.appendChild(zhDiv2);
-
-      var notesDiv2 = document.createElement("div");
-      notesDiv2.className = "answer-notes";
-      notesDiv2.innerHTML = renderNotes(sent.notes);
-      card.appendChild(notesDiv2);
+      var zh2 = document.createElement("div"); zh2.style.cssText = "color:var(--t2);font-size:14px;margin:6px 0 8px;";
+      zh2.textContent = sent.zh; card.appendChild(zh2);
+      var nn = document.createElement("div"); nn.className = "notes"; nn.innerHTML = renderNotes(sent.notes);
+      card.appendChild(nn);
     }
-
-    container.appendChild(card);
+    c.appendChild(card);
   });
 }
 
-function checkAnswer(i) {
-  var input = document.getElementById("input-" + i);
-  if (!input || !input.value.trim()) {
-    if (input) { input.style.borderColor = "var(--red)"; setTimeout(function(){ input.style.borderColor = ""; }, 800); }
+function check(i) {
+  var inp = document.getElementById("inp-"+i);
+  if (!inp || !inp.value.trim()) {
+    if (inp) { inp.style.borderColor = "var(--red)"; setTimeout(function(){ inp.style.borderColor=""; }, 800); }
     return;
   }
-  var s = getSong();
-  checkedCards.add(i);
-  correctCount++;
-  streakCount++;
-  totalXP += 10 + (streakCount >= 3 ? 5 : 0);
-
-  var card = document.getElementById("card-" + i);
-  card.classList.add("correct");
-  var badge = document.getElementById("badge-" + i);
-  badge.textContent = "✅";
-  badge.classList.add("show");
-  document.getElementById("reveal-" + i).classList.add("show");
-  input.value = s.sentences[i].zh;
-  input.disabled = true;
-
-  s.sentences[i].vocab.forEach(function(v) {
-    if (!unlockedWords.has(v.word)) {
-      unlockedWords.add(v.word);
-      wordsUnlocked++;
-      showWordUnlock(v.word, v.def);
-    }
-  });
-
-  updateStats();
-  showXP("+10 XP", card, false);
-  if (streakCount >= 3) showXP("🔥 +5", card, true);
-  if (checkedCards.size === s.sentences.length) setTimeout(showComplete, 800);
+  var s = song();
+  checked.add(i); correct++; streak++;
+  xp += 10 + (streak >= 3 ? 5 : 0);
+  var card = document.getElementById("card-"+i);
+  card.classList.add("ok");
+  var b = document.getElementById("b-"+i); b.textContent = "✅"; b.classList.add("show");
+  document.getElementById("rv-"+i).classList.add("show");
+  inp.value = s.sentences[i].zh; inp.disabled = true;
+  if (s.sentences[i].vocab) {
+    s.sentences[i].vocab.forEach(function(v) {
+      if (!unlocked.has(v.word)) { unlocked.add(v.word); words++; showWU(v.word, v.def); }
+    });
+  }
+  updateStats(); floatXP("+10 XP", card, false);
+  if (streak >= 3) floatXP("🔥 +5", card, true);
+  if (checked.size === s.sentences.length) setTimeout(showComplete, 800);
 }
 
-function skipCard(i) {
-  var s = getSong();
-  checkedCards.add(i);
-  streakCount = 0;
-  var badge = document.getElementById("badge-" + i);
-  badge.textContent = "💡";
-  badge.classList.add("show");
-  var reveal = document.getElementById("reveal-" + i);
-  if (reveal) reveal.classList.add("show");
-  var input = document.getElementById("input-" + i);
-  if (input) { input.value = s.sentences[i].zh; input.disabled = true; }
+function skip(i) {
+  var s = song();
+  checked.add(i); streak = 0;
+  var b = document.getElementById("b-"+i); b.textContent = "💡"; b.classList.add("show");
+  var rv = document.getElementById("rv-"+i); if (rv) rv.classList.add("show");
+  var inp = document.getElementById("inp-"+i); if (inp) { inp.value = s.sentences[i].zh; inp.disabled = true; }
   updateStats();
-  if (checkedCards.size === s.sentences.length) setTimeout(showComplete, 800);
+  if (checked.size === s.sentences.length) setTimeout(showComplete, 800);
 }
 
 function updateStats() {
-  var s = getSong();
-  var pct = Math.round((checkedCards.size / s.sentences.length) * 100);
-  document.getElementById("progress-fill").style.width = pct + "%";
-  document.getElementById("progress-pct").textContent = pct + "%";
-  document.getElementById("progress-text").textContent = "第 " + Math.min(checkedCards.size+1, s.sentences.length) + " 句，共 " + s.sentences.length + " 句";
-  document.getElementById("stat-correct").textContent = correctCount;
-  document.getElementById("stat-words").textContent = wordsUnlocked;
-  document.getElementById("stat-streak").textContent = streakCount;
-  if (streakCount >= 3) {
-    var b = document.getElementById("streak-badge");
-    b.style.display = "flex";
-    document.getElementById("streak-num").textContent = streakCount;
-  }
+  var s = song();
+  var pct = Math.round(checked.size / s.sentences.length * 100);
+  document.getElementById("prog-fill").style.width = pct + "%";
+  document.getElementById("prog-pct").textContent = pct + "%";
+  document.getElementById("prog-txt").textContent = "第 " + Math.min(checked.size+1, s.sentences.length) + " 句，共 " + s.sentences.length + " 句";
+  document.getElementById("sc").textContent = correct;
+  document.getElementById("sw").textContent = words;
+  document.getElementById("ss").textContent = streak;
+  if (streak >= 3) { var sb = document.getElementById("streak-b"); sb.style.display = "flex"; document.getElementById("sn").textContent = streak; }
   renderPicker();
 }
 
-function showXP(text, el, bonus) {
-  var xp = document.createElement("div");
-  xp.className = "xp-float";
-  xp.textContent = text;
-  xp.style.color = bonus ? "var(--gold)" : "var(--accent3)";
-  var rect = el.getBoundingClientRect();
-  xp.style.left = (rect.left + rect.width/2 - 25) + "px";
-  xp.style.top = (rect.top + window.scrollY - 10) + "px";
-  document.body.appendChild(xp);
-  setTimeout(function(){ xp.remove(); }, 1200);
+function floatXP(txt, el, bonus) {
+  var x = document.createElement("div"); x.className = "xpf"; x.textContent = txt;
+  x.style.color = bonus ? "var(--gold)" : "var(--ac3)";
+  var r = el.getBoundingClientRect();
+  x.style.left = (r.left + r.width/2 - 25) + "px";
+  x.style.top = (r.top + window.scrollY - 10) + "px";
+  document.body.appendChild(x);
+  setTimeout(function(){ x.remove(); }, 1200);
 }
 
-var wuTimer;
-function showWordUnlock(word, def) {
-  clearTimeout(wuTimer);
-  document.getElementById("wu-word").textContent = word;
-  document.getElementById("wu-def").textContent = def;
-  var wu = document.getElementById("word-unlock");
-  wu.classList.add("show");
-  wuTimer = setTimeout(function(){ wu.classList.remove("show"); }, 2000);
+var wuT;
+function showWU(w, d) {
+  clearTimeout(wuT);
+  document.getElementById("wuw").textContent = w;
+  document.getElementById("wud").textContent = d;
+  var wu = document.getElementById("wu"); wu.classList.add("show");
+  wuT = setTimeout(function(){ wu.classList.remove("show"); }, 2000);
 }
 
-function handleVocabTag(el) {
-  showVocab(el.getAttribute("data-word"), el.getAttribute("data-def"), el.getAttribute("data-ex"));
-}
-
-function showVocab(word, def, ex) {
-  document.getElementById("vp-word").textContent = word;
-  document.getElementById("vp-def").textContent = def;
-  document.getElementById("vp-ex").textContent = ex;
-  document.getElementById("vocab-popup").classList.add("show");
+function showV(w, d, e) {
+  document.getElementById("vw").textContent = w;
+  document.getElementById("vd").textContent = d;
+  document.getElementById("ve").textContent = e;
+  document.getElementById("vpop").classList.add("show");
   document.getElementById("overlay").classList.add("show");
 }
 
-function closeVocab() {
-  document.getElementById("vocab-popup").classList.remove("show");
+function closeV() {
+  document.getElementById("vpop").classList.remove("show");
   document.getElementById("overlay").classList.remove("show");
 }
 
-function speak(text) {
-  var u = new SpeechSynthesisUtterance(text);
+function speak(txt) {
+  var u = new SpeechSynthesisUtterance(txt);
   u.lang = "es-ES"; u.rate = 0.85;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(u);
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 
 function showComplete() {
-  var s = getSong();
-  document.getElementById("cards-container").style.display = "none";
-  document.getElementById("complete-title").textContent = s.title + " 學完了！";
-  document.getElementById("complete-sub").textContent = s.artist + " · " + s.zh;
-  document.getElementById("final-correct").textContent = correctCount;
-  document.getElementById("final-words").textContent = wordsUnlocked;
-  document.getElementById("final-xp").textContent = totalXP;
-  var nextBtn = document.getElementById("btn-next");
-  if (currentSongIdx < SONGS.length - 1) {
-    nextBtn.textContent = "下一首：" + SONGS[currentSongIdx+1].title + " →";
-    nextBtn.style.display = "block";
-  } else {
-    nextBtn.style.display = "none";
-  }
-  document.getElementById("complete-screen").classList.add("show");
+  var s = song();
+  document.getElementById("cards").style.display = "none";
+  document.getElementById("ct").textContent = s.title + " 學完了！";
+  document.getElementById("cs2").textContent = s.artist + " · " + s.zh;
+  document.getElementById("fc").textContent = correct;
+  document.getElementById("fw").textContent = words;
+  document.getElementById("fx").textContent = xp;
+  var nx = document.getElementById("btn-nx");
+  if (idx < SONGS.length - 1) { nx.textContent = "下一首：" + SONGS[idx+1].title + " →"; nx.style.display = "block"; }
+  else { nx.style.display = "none"; }
+  document.getElementById("cscreen").classList.add("show");
 }
 
 function restart() {
-  document.getElementById("complete-screen").classList.remove("show");
-  checkedCards.clear(); unlockedWords.clear();
-  correctCount = 0; wordsUnlocked = 0; streakCount = 0; totalXP = 0;
-  document.getElementById("streak-badge").style.display = "none";
-  document.getElementById("cards-container").style.display = "";
-  updateStats();
-  renderCards();
-  window.scrollTo(0,0);
+  document.getElementById("cscreen").classList.remove("show");
+  checked.clear(); unlocked.clear(); correct=0; words=0; streak=0; xp=0;
+  document.getElementById("streak-b").style.display = "none";
+  document.getElementById("cards").style.display = "";
+  updateStats(); renderCards(); window.scrollTo(0,0);
 }
 
-function nextSong() {
-  if (currentSongIdx < SONGS.length - 1) initSong(currentSongIdx + 1);
-}
+function nextSong() { if (idx < SONGS.length - 1) init(idx + 1); }
 
-try {
-  initSong(0);
-} catch(e) {
-  document.body.innerHTML = '<div style="color:white;padding:20px;font-family:monospace;background:#1a0a2e;min-height:100vh"><h2>⚠️ JS Error</h2><pre>' + e.toString() + '\n' + e.stack + '</pre></div>';
-}
-
+init(0);
 </script>
 </body>
 </html>
