@@ -196,6 +196,7 @@ body {
 .yt-expand-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--accent3); font-size: 11px; font-weight: 700; padding: 7px 11px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .yt-embed-full { display: none; width: 100%; aspect-ratio: 16/9; }
 .yt-embed-full iframe { width: 100%; height: 100%; display: block; border: none; }
+.yt-embed-full > div { width: 100%; height: 100%; }
 .yt-embed-full.show { display: block; }
 .yt-close-bar { text-align: center; padding: 6px; font-size: 11px; color: var(--text3); cursor: pointer; background: #0f0d1f; }
 .yt-close-bar:hover { color: var(--accent3); }
@@ -288,7 +289,7 @@ body {
 <!-- YT Bar -->
 <div class="yt-bar" id="yt-bar">
   <div class="yt-embed-full" id="yt-embed-full">
-    <iframe id="yt-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <div id="yt-player"></div>
   </div>
   <div class="yt-close-bar" id="yt-close-bar" onclick="togglePlayer()" style="display:none">▼ 收起播放器</div>
   <div class="yt-bar-mini" id="yt-bar-mini" onclick="togglePlayer()">
@@ -427,17 +428,62 @@ function updateHeader() {
   document.getElementById("h-sub").textContent = s.zh;
 }
 
+var ytPlayer = null;
+var ytReady = false;
+var pendingVideoId = null;
+
+// Load YouTube IFrame API
+var tag = document.createElement("script");
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player("yt-player", {
+    height: "100%",
+    width: "100%",
+    videoId: pendingVideoId || SONGS[0].ytId,
+    playerVars: { rel: 0, modestbranding: 1 },
+    events: {
+      onReady: function() {
+        ytReady = true;
+        // 更新縮圖
+        updateThumb(pendingVideoId || SONGS[0].ytId);
+      }
+    }
+  });
+}
+
+function updateThumb(videoId) {
+  document.getElementById("yt-thumb-img").src = "https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg";
+}
+
 function updateYTBar() {
   var s = getSong();
-  var embedUrl = "https://www.youtube.com/embed/" + s.ytId + "?rel=0&modestbranding=1";
-  document.getElementById("yt-iframe").src = embedUrl;
-  document.getElementById("yt-thumb-img").src = "https://img.youtube.com/vi/" + s.ytId + "/mqdefault.jpg";
   document.getElementById("yt-title-bar").textContent = s.title;
   document.getElementById("yt-artist-bar").textContent = s.artist;
+  updateThumb(s.ytId);
+  if (ytReady && ytPlayer) {
+    ytPlayer.loadVideoById(s.ytId);
+    ytPlayer.pauseVideo();
+  } else {
+    pendingVideoId = s.ytId;
+  }
   // 切歌時收起播放器
   document.getElementById("yt-embed-full").classList.remove("show");
   document.getElementById("yt-bar-mini").style.display = "flex";
   document.getElementById("yt-close-bar").style.display = "none";
+}
+
+function seekTo(sec) {
+  // 展開播放器
+  var full = document.getElementById("yt-embed-full");
+  if (!full.classList.contains("show")) {
+    togglePlayer();
+  }
+  if (ytReady && ytPlayer) {
+    ytPlayer.seekTo(sec, true);
+    ytPlayer.playVideo();
+  }
 }
 
 function togglePlayer() {
@@ -560,13 +606,14 @@ function renderCards() {
       card.appendChild(vtDiv);
     }
 
-    // Timestamp
-    var tsLink = document.createElement("a");
-    tsLink.className = "ts-btn";
-    tsLink.href = tsUrl;
-    tsLink.target = "_blank";
-    tsLink.textContent = "▶ " + tsLabel + " 聽這句";
-    card.appendChild(tsLink);
+    // Timestamp button - seek in player instead of new tab
+    var tsBtn = document.createElement("button");
+    tsBtn.className = "ts-btn";
+    tsBtn.textContent = "▶ " + tsLabel + " 聽這句";
+    (function(sec) {
+      tsBtn.onclick = function() { seekTo(sec); };
+    })(sent.ts);
+    card.appendChild(tsBtn);
 
     if (currentMode === "translate") {
       var tlabel = document.createElement("div");
