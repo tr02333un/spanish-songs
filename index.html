@@ -186,14 +186,12 @@ body {
 .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
 /* ─── YT BAR ─── */
-.yt-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0d1f; border-top: 1px solid var(--border); padding: 10px 14px 14px; z-index: 200; display: flex; align-items: center; gap: 10px; }
-.yt-thumb { width: 42px; height: 42px; border-radius: 8px; overflow: hidden; flex-shrink: 0; cursor: pointer; }
-.yt-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.yt-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0d1f; border-top: 1px solid var(--border); padding: 8px 14px 14px; z-index: 200; display: flex; align-items: center; gap: 10px; }
+.yt-embed-wrap { width: 80px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #000; }
+.yt-embed-wrap iframe { width: 100%; height: 100%; display: block; }
 .yt-info { flex: 1; min-width: 0; }
 .yt-title { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .yt-artist { font-size: 10px; color: var(--text3); margin-top: 1px; }
-.yt-btn { background: var(--accent); border: none; border-radius: 8px; color: white; font-size: 11px; font-weight: 700; padding: 7px 11px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; }
-.yt-btn:hover { background: var(--accent2); }
 
 /* ─── VOCAB POPUP ─── */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; }
@@ -280,16 +278,23 @@ body {
   <button class="btn-next-song" onclick="nextSong()" id="btn-next">下一首 →</button>
 </div>
 
-<!-- YT Bar -->
+<!-- YT Bar with embedded player -->
 <div class="yt-bar">
-  <a id="yt-thumb-link" href="#" target="_blank" class="yt-thumb">
-    <img id="yt-thumb-img" src="" alt="">
-  </a>
+  <div class="yt-embed-wrap" id="yt-embed-wrap">
+    <iframe
+      id="yt-iframe"
+      src=""
+      width="100%"
+      height="100%"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
   <div class="yt-info">
     <div class="yt-title" id="yt-title-bar">-</div>
     <div class="yt-artist" id="yt-artist-bar">-</div>
   </div>
-  <a id="yt-play-btn" href="#" target="_blank" class="yt-btn">▶ 播放整首</a>
 </div>
 
 <!-- Vocab Popup -->
@@ -418,12 +423,10 @@ function updateHeader() {
 
 function updateYTBar() {
   var s = getSong();
-  var url = "https://www.youtube.com/watch?v=" + s.ytId;
-  document.getElementById("yt-thumb-link").href = url;
-  document.getElementById("yt-thumb-img").src = "https://img.youtube.com/vi/" + s.ytId + "/mqdefault.jpg";
+  var embedUrl = "https://www.youtube.com/embed/" + s.ytId + "?rel=0&modestbranding=1";
+  document.getElementById("yt-iframe").src = embedUrl;
   document.getElementById("yt-title-bar").textContent = s.title;
   document.getElementById("yt-artist-bar").textContent = s.artist;
-  document.getElementById("yt-play-btn").href = url;
 }
 
 function renderPicker() {
