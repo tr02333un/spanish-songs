@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎵 追星學西語</title>
+<title>🎵 追星學西語 v7</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -894,7 +894,11 @@ function nextSong() {
   if (currentSongIdx < SONGS.length - 1) initSong(currentSongIdx + 1);
 }
 
-initSong(0);
+try {
+  initSong(0);
+} catch(e) {
+  document.body.innerHTML = '<div style="color:white;padding:20px;font-family:monospace;background:#1a0a2e;min-height:100vh"><h2>⚠️ JS Error</h2><pre>' + e.toString() + '\n' + e.stack + '</pre></div>';
+}
 
 </script>
 </body>
