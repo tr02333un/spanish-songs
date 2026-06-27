@@ -186,12 +186,19 @@ body {
 .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
 
 /* ─── YT BAR ─── */
-.yt-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0d1f; border-top: 1px solid var(--border); padding: 8px 14px 14px; z-index: 200; display: flex; align-items: center; gap: 10px; }
-.yt-embed-wrap { width: 80px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #000; }
-.yt-embed-wrap iframe { width: 100%; height: 100%; display: block; }
+.yt-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f0d1f; border-top: 1px solid var(--border); z-index: 200; transition: all 0.3s ease; }
+.yt-bar-mini { display: flex; align-items: center; gap: 10px; padding: 8px 14px 14px; cursor: pointer; }
+.yt-thumb-mini { width: 48px; height: 48px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #000; }
+.yt-thumb-mini img { width: 100%; height: 100%; object-fit: cover; }
 .yt-info { flex: 1; min-width: 0; }
 .yt-title { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .yt-artist { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.yt-expand-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--accent3); font-size: 11px; font-weight: 700; padding: 7px 11px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.yt-embed-full { display: none; width: 100%; aspect-ratio: 16/9; }
+.yt-embed-full iframe { width: 100%; height: 100%; display: block; border: none; }
+.yt-embed-full.show { display: block; }
+.yt-close-bar { text-align: center; padding: 6px; font-size: 11px; color: var(--text3); cursor: pointer; background: #0f0d1f; }
+.yt-close-bar:hover { color: var(--accent3); }
 
 /* ─── VOCAB POPUP ─── */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; }
@@ -278,22 +285,21 @@ body {
   <button class="btn-next-song" onclick="nextSong()" id="btn-next">下一首 →</button>
 </div>
 
-<!-- YT Bar with embedded player -->
-<div class="yt-bar">
-  <div class="yt-embed-wrap" id="yt-embed-wrap">
-    <iframe
-      id="yt-iframe"
-      src=""
-      width="100%"
-      height="100%"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen>
-    </iframe>
+<!-- YT Bar -->
+<div class="yt-bar" id="yt-bar">
+  <div class="yt-embed-full" id="yt-embed-full">
+    <iframe id="yt-iframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
   </div>
-  <div class="yt-info">
-    <div class="yt-title" id="yt-title-bar">-</div>
-    <div class="yt-artist" id="yt-artist-bar">-</div>
+  <div class="yt-close-bar" id="yt-close-bar" onclick="togglePlayer()" style="display:none">▼ 收起播放器</div>
+  <div class="yt-bar-mini" id="yt-bar-mini" onclick="togglePlayer()">
+    <div class="yt-thumb-mini">
+      <img id="yt-thumb-img" src="" alt="">
+    </div>
+    <div class="yt-info">
+      <div class="yt-title" id="yt-title-bar">-</div>
+      <div class="yt-artist" id="yt-artist-bar">-</div>
+    </div>
+    <div class="yt-expand-btn">▶ 展開播放</div>
   </div>
 </div>
 
@@ -425,8 +431,29 @@ function updateYTBar() {
   var s = getSong();
   var embedUrl = "https://www.youtube.com/embed/" + s.ytId + "?rel=0&modestbranding=1";
   document.getElementById("yt-iframe").src = embedUrl;
+  document.getElementById("yt-thumb-img").src = "https://img.youtube.com/vi/" + s.ytId + "/mqdefault.jpg";
   document.getElementById("yt-title-bar").textContent = s.title;
   document.getElementById("yt-artist-bar").textContent = s.artist;
+  // 切歌時收起播放器
+  document.getElementById("yt-embed-full").classList.remove("show");
+  document.getElementById("yt-bar-mini").style.display = "flex";
+  document.getElementById("yt-close-bar").style.display = "none";
+}
+
+function togglePlayer() {
+  var full = document.getElementById("yt-embed-full");
+  var mini = document.getElementById("yt-bar-mini");
+  var closeBar = document.getElementById("yt-close-bar");
+  var isOpen = full.classList.contains("show");
+  if (isOpen) {
+    full.classList.remove("show");
+    mini.style.display = "flex";
+    closeBar.style.display = "none";
+  } else {
+    full.classList.add("show");
+    mini.style.display = "none";
+    closeBar.style.display = "block";
+  }
 }
 
 function renderPicker() {
